@@ -1,0 +1,35 @@
+const choosenColor = {
+  blue1: '#39afd6',
+  blue2: '#e4eff9',
+  green1: '#9db506',
+  green2: '#667243',
+  dark1: '#112340',
+  dark2: '#495A75',
+  dark3: '#8092AF',
+  grey1: '#334f5d',
+  grey2: '#f5f3f3',
+  grey3: '#EDEEF0',
+  grey4: '#B1B7C2',
+  grey5: '#292D32',
+  pink1: '#c38cbf',
+  black1: '#0c0c0c',
+  red1: '#d63031',
+};
+
+export const colors = {
+  primary: choosenColor.green1,
+  secondary: choosenColor.green2,
+  tertiary: choosenColor.blue1,
+  white: 'white',
+  black: 'black',
+  page: choosenColor.grey2,
+  border: choosenColor.grey2,
+  text: {
+    primary: choosenColor.dark1,
+    secondary: choosenColor.grey1,
+    menuInactive: choosenColor.dark2,
+    menuActive: choosenColor.blue1,
+    subTitle: choosenColor.dark3,
+    negative: choosenColor.red1,
+  },
+};
