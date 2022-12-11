@@ -24,7 +24,6 @@ const service = async ({url, method, data}) => {
 };
 
 export const getData = async (text) => {
-  console.log("run the: ", `${API_URL}/entri/${text}`,)
   return service({
     url: `${API_URL}/entri/${text}`,
     method: 'GET',

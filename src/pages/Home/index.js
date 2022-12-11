@@ -28,8 +28,6 @@ export default function HomeScreen() {
           dispatch({type: 'SET_LOADING', value: true});
           const response = await getData(wordToFind);
 
-          console.log('response: ', response);
-
           if (response) {
             dispatch({type: 'SET_LOADING', value: false});
           }
@@ -54,7 +52,6 @@ export default function HomeScreen() {
   };
 
   const renderItem = ({item}) => {
-    console.log('item render: ', item);
     return (
       <>
         <Gap height={16} />
