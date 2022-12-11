@@ -135,6 +135,7 @@ export default function HomeScreen() {
           renderItem={renderItem}
           keyExtractor={(item, index) => index}
         />
+        <Text style={{textAlign: 'center', paddingVertical:10, fontFamily: fonts.primary[400]}}>©CraftWith Naandalist</Text>
       </View>
     </>
   );
