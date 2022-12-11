@@ -115,8 +115,6 @@ export default function HomeScreen() {
               <Gap width={10} />
               <TextInput
                 style={styles.input}
-                // onFocus={onFocusInput}
-                // onBlur={onBlurInput}
                 onChangeText={val => setWordToFind(val)}
                 value={wordToFind}
                 placeholder="Cari kata atau frasa"
@@ -135,7 +133,7 @@ export default function HomeScreen() {
           renderItem={renderItem}
           keyExtractor={(item, index) => index}
         />
-        <Text style={{textAlign: 'center', paddingVertical:10, fontFamily: fonts.primary[400]}}>©CraftWith Naandalist</Text>
+        <Text style={styles.footer}>©CraftWith Naandalist</Text>
       </View>
     </>
   );
@@ -207,5 +205,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.primary[600],
     color: colors.text.primary,
     // backgroundColor:'yellow'
+  },
+  footer: {
+    textAlign: 'center',
+    paddingVertical: 10,
+    fontFamily: fonts.primary[400],
+    backgroundColor: colors.white,
   },
 });
