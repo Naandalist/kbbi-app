@@ -1,11 +1,14 @@
 const choosenColor = {
   blue1: '#39afd6',
   blue2: '#e4eff9',
+  blue3: '#74b9ff',
   green1: '#9db506',
   green2: '#667243',
+  green3: '#2ecc71',
   dark1: '#112340',
   dark2: '#495A75',
   dark3: '#8092AF',
+  dark4: 'rgba(44, 62, 80,0.7)',
   grey1: '#334f5d',
   grey2: '#f5f3f3',
   grey3: '#EDEEF0',
@@ -24,6 +27,7 @@ export const colors = {
   black: 'black',
   page: choosenColor.grey2,
   border: choosenColor.grey2,
+  borderActive: choosenColor.blue3,
   text: {
     primary: choosenColor.dark1,
     secondary: choosenColor.grey1,
@@ -32,4 +36,7 @@ export const colors = {
     subTitle: choosenColor.dark3,
     negative: choosenColor.red1,
   },
+  loadingBackground: choosenColor.dark4,
+  error: choosenColor.red1,
+  success: choosenColor.green3,
 };
