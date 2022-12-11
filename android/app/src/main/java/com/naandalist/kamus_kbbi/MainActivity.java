@@ -1,4 +1,4 @@
-package com.kamus_kbbi;
+package com.naandalist.kamus_kbbi;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
@@ -12,7 +12,7 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected String getMainComponentName() {
-    return "kamus_kbbi";
+    return "KamusKBBI";
   }
 
   /**
