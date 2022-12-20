@@ -4,6 +4,9 @@
 
 Kamus KBBI Indonesia is a mobile app that has a comprehensive database from [KBBI Kemendikbud](https://kbbi.kemdikbud.go.id/) and serve real-time definitions.
 
+## Download on Google Play
+You can find it on https://play.google.com/store/apps/details?id=com.naandalist.kamus_kbbi
+
 ## Installation
 
 To install and run this app, you will need to have the following dependencies installed on your machine:
