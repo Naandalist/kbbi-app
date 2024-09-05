@@ -23,7 +23,7 @@ const service = async ({url, method, data}) => {
     });
 };
 
-export const getData = async (text) => {
+export const getData = async text => {
   return service({
     url: `${API_URL}/entri/${text}`,
     method: 'GET',

@@ -6,7 +6,7 @@ import {colors, fonts} from '../../utils';
 
 export default function SplashScreen({navigation}) {
   useEffect(() => {
-    setTimeout(()=> navigation.replace("Home"), 3000)
+    setTimeout(() => navigation.replace('Home'), 3000);
   });
 
   return (
@@ -17,7 +17,7 @@ export default function SplashScreen({navigation}) {
       <Text style={styles.title}>KBBI</Text>
       <Text style={styles.subTitle}>Kamus Indonesia</Text>
       <Gap height={20} />
-      <ActivityIndicator  color={colors.black} />
+      <ActivityIndicator color={colors.black} />
     </View>
   );
 }
@@ -36,10 +36,12 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.differ.normal,
     fontSize: 25,
+    color: '#000',
   },
   subTitle: {
     fontFamily: fonts.differ.normal,
     fontSize: 15,
     marginTop: -5,
+    color: '#000',
   },
 });

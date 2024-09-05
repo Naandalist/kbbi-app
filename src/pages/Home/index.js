@@ -20,31 +20,37 @@ export default function HomeScreen() {
   const [definition, setDefinition] = useState([]);
 
   const getDataFromKBBI = useCallback(async () => {
-    await NetInfo.fetch().then(async state => {
+    try {
+      const state = await NetInfo.fetch();
       if (!state.isConnected) {
-        return showError('Mohon pastikan device terhubung dengan internet!');
-      } else {
-        if (wordToFind.length > 1) {
-          dispatch({type: 'SET_LOADING', value: true});
-          const response = await getData(wordToFind);
-
-          if (response) {
-            dispatch({type: 'SET_LOADING', value: false});
-          }
-
-          if (response.error) {
-            showError('Kata yang dicari tidak ditemukan dalam KBBI.');
-          }
-
-          if (!response.error && response.data.status) {
-            setDefinition(response.data.data);
-          }
-        } else {
-          dispatch({type: 'SET_LOADING', value: false});
-          showError('Ketikan kata minimal 2 huruf');
-        }
+        throw new Error('Mohon pastikan device terhubung dengan internet!');
       }
-    });
+
+      if (wordToFind.length > 1) {
+        dispatch({type: 'SET_LOADING', value: true});
+        const response = await getData(wordToFind);
+
+        if (response) {
+          dispatch({type: 'SET_LOADING', value: false});
+        }
+
+        if (response.error) {
+          showError('Kata yang dicari tidak ditemukan dalam KBBI.');
+        } else if (response.data && response.data.status) {
+          setDefinition(response.data.data);
+        } else {
+          // Handle unexpected response format or other errors
+          throw new Error('Unexpected response from getData');
+        }
+      } else {
+        dispatch({type: 'SET_LOADING', value: false});
+        showError('Ketikan kata minimal 2 huruf');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      // Implement appropriate error handling here, like showing a generic error message
+      showError('Terjadi kesalahan saat mengambil data.');
+    }
   });
 
   const onSubmitSearching = () => {
@@ -117,6 +123,7 @@ export default function HomeScreen() {
                 placeholder="Cari kata atau frasa"
                 editable={true}
                 onSubmitEditing={onSubmitSearching}
+                cursorColor="#000"
               />
             </View>
             <TouchableOpacity style={{}} onPress={() => setWordToFind('')}>
@@ -130,7 +137,6 @@ export default function HomeScreen() {
           renderItem={renderItem}
           keyExtractor={(item, index) => index}
         />
-        <Text style={styles.footer}>©CraftWith Naandalist</Text>
       </View>
     </>
   );
@@ -171,6 +177,7 @@ const styles = StyleSheet.create({
   input: {
     height: 50,
     width: '80%',
+    color: '#000',
   },
   content: {
     backgroundColor: colors.white,
