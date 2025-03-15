@@ -14,9 +14,15 @@ import {getData} from '../../utils/api';
 import {useDispatch} from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 
+const alphabetLetters = Array.from(
+  {length: 26},
+  (_, i) => String.fromCharCode(65 + i), // ASCII code for 'A' is 65
+);
+
 export default function HomeScreen() {
   const dispatch = useDispatch();
   const [wordToFind, setWordToFind] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('#');
   const [definition, setDefinition] = useState([]);
 
   const getDataFromKBBI = useCallback(async () => {
@@ -96,11 +102,41 @@ export default function HomeScreen() {
     );
   };
 
+  const onLetterPress = letter => {
+    setSelectedFilter(letter);
+  };
+
+  const renderLetterButton = ({item}) => (
+    <TouchableOpacity onPress={() => onLetterPress(item)}>
+      <View
+        style={{
+          marginTop: 20,
+          marginHorizontal: 5,
+          width: 40,
+          height: 40,
+          borderRadius: 100,
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderColor: 'white',
+          borderWidth: 2,
+          backgroundColor: selectedFilter === item ? 'white' : '#c0392b',
+        }}>
+        <Text
+          style={{
+            color: selectedFilter === item ? '#c0392b' : 'white',
+            fontFamily: fonts.differ.normal,
+          }}>
+          {item}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <>
       <View style={styles.page}>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>Kamus Indonesia 😄</Text>
+          <Text style={styles.headerTitle}>Kamus Bahasa 🇮🇩</Text>
           <Text style={styles.headerDesc}>
             Membantu pencarian definisi kata atau frasa berdasarkan Kamus Besar
             Bahasa Indonesia (KBBI).
@@ -117,20 +153,42 @@ export default function HomeScreen() {
                 placeholder="Cari kata atau frasa"
                 editable={true}
                 onSubmitEditing={onSubmitSearching}
+                color="black"
+                placeholderTextColor="gray"
               />
             </View>
-            <TouchableOpacity style={{}} onPress={() => setWordToFind('')}>
+            {/* <TouchableOpacity style={{}} onPress={() => setWordToFind('')}>
               <IconClose width={20} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
+        <View style={{backgroundColor: '#c0392b', paddingBottom: 18}}>
+          <FlatList
+            data={['#'].concat(alphabetLetters)}
+            renderItem={renderLetterButton}
+            keyExtractor={item => item}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{paddingHorizontal: 10}}
+          />
+        </View>
 
-        <FlatList
+        {/* <FlatList
           data={definition}
           renderItem={renderItem}
           keyExtractor={(item, index) => index}
-        />
-        <Text style={styles.footer}>©CraftWith Naandalist</Text>
+        /> */}
+        {/* <Text style={styles.footer}>©CraftWith Naandalist</Text> */}
+
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'white',
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+          }}>
+          <Text style={{color: 'black'}}>Huhuhu</Text>
+        </View>
       </View>
     </>
   );
@@ -142,9 +200,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.page,
   },
   headerContainer: {
-    backgroundColor: colors.tertiary,
+    // backgroundColor: colors.tertiary,
+    backgroundColor: '#c0392b',
     paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingTop: 20,
   },
   headerTitle: {
     fontFamily: fonts.differ.normal,
@@ -171,6 +230,7 @@ const styles = StyleSheet.create({
   input: {
     height: 50,
     width: '80%',
+    colors: 'black',
   },
   content: {
     backgroundColor: colors.white,
