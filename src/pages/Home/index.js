@@ -5,192 +5,243 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
-import {useState, useCallback} from 'react';
+import React, {useState, useCallback, memo, useEffect} from 'react';
 import {colors, fonts, showError} from '../../utils';
 import {IconClose, IconSearch} from '../../assets';
 import {Gap} from '../../components';
 import {getData} from '../../utils/api';
 import {useDispatch} from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
+import {wordlist} from '../../constants/wordlist';
 
-const alphabetLetters = Array.from(
-  {length: 26},
-  (_, i) => String.fromCharCode(65 + i), // ASCII code for 'A' is 65
+const ITEM_HEIGHT = 40;
+const ITEMS_PER_PAGE = 50;
+
+const alphabetLetters = Array.from({length: 26}, (_, i) =>
+  String.fromCharCode(65 + i),
 );
 
-export default function HomeScreen() {
+// Memoized item components for better performance
+const WordItem = memo(({item, onPress}) => (
+  <TouchableOpacity onPress={onPress}>
+    <View style={styles.wordItem}>
+      <Text style={styles.wordText}>{item}</Text>
+    </View>
+  </TouchableOpacity>
+));
+
+const LetterButton = memo(({letter, isSelected, onPress}) => (
+  <TouchableOpacity onPress={() => onPress(letter)}>
+    <View
+      style={[
+        styles.letterButton,
+        {backgroundColor: isSelected ? 'white' : '#c0392b'},
+      ]}>
+      <Text
+        style={[styles.letterText, {color: isSelected ? '#c0392b' : 'white'}]}>
+        {letter}
+      </Text>
+    </View>
+  </TouchableOpacity>
+));
+
+export default function HomeScreen({navigation}) {
   const dispatch = useDispatch();
   const [wordToFind, setWordToFind] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('#');
-  const [definition, setDefinition] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState('A');
+  const [displayedData, setDisplayedData] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [endReached, setEndReached] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
+
+  // Filter wordlist based on selected letter
+  useEffect(() => {
+    let filtered = wordlist[selectedFilter] || [];
+
+    setFilteredList(filtered);
+    setDisplayedData(filtered.slice(0, ITEMS_PER_PAGE));
+    setEndReached(false);
+  }, [selectedFilter]);
 
   const getDataFromKBBI = useCallback(async () => {
-    await NetInfo.fetch().then(async state => {
-      if (!state.isConnected) {
+    try {
+      const netInfo = await NetInfo.fetch();
+      if (!netInfo.isConnected) {
         return showError('Mohon pastikan device terhubung dengan internet!');
-      } else {
-        if (wordToFind.length > 1) {
-          dispatch({type: 'SET_LOADING', value: true});
-          const response = await getData(wordToFind);
-
-          if (response) {
-            dispatch({type: 'SET_LOADING', value: false});
-          }
-
-          if (response.error) {
-            showError('Kata yang dicari tidak ditemukan dalam KBBI.');
-          }
-
-          if (!response.error && response.data.status) {
-            setDefinition(response.data.data);
-          }
-        } else {
-          dispatch({type: 'SET_LOADING', value: false});
-          showError('Ketikan kata minimal 2 huruf');
-        }
       }
-    });
-  });
 
-  const onSubmitSearching = () => {
+      if (wordToFind.length <= 1) {
+        return showError('Ketikan kata minimal 2 huruf');
+      }
+
+      dispatch({type: 'SET_LOADING', value: true});
+      const response = await getData(wordToFind);
+      dispatch({type: 'SET_LOADING', value: false});
+
+      if (response.error) {
+        showError('Kata yang dicari tidak ditemukan dalam KBBI.');
+        return;
+      }
+
+      if (!response.error && response.data.status) {
+        // setDefinition(response.data.data);
+      }
+    } catch (error) {
+      dispatch({type: 'SET_LOADING', value: false});
+      showError('Terjadi kesalahan dalam pencarian');
+    }
+  }, [wordToFind, dispatch]);
+
+  const onSubmitSearching = useCallback(() => {
     getDataFromKBBI();
-  };
+  }, [getDataFromKBBI]);
 
-  const renderItem = ({item}) => {
-    return (
-      <>
-        <Gap height={16} />
-        <View style={styles.content}>
-          <Text style={styles.lemaTitle}>{item.lema}</Text>
-          <Text style={styles.label}>Kata dasar</Text>
-        </View>
-        {item.arti.map((val, index) => {
-          return (
-            <View style={styles.subContent} key={index}>
-              <View style={{flexDirection: 'row'}}>
-                <Text>{index + 1}</Text>
-                <View style={{paddingHorizontal: 10}}>
-                  <Text style={styles.label}>{val.kelas_kata}</Text>
-                  <Text style={styles.desc}>{val.deskripsi}</Text>
-                </View>
-              </View>
-              {index === item.arti.length - 1 ? <Gap height={20} /> : null}
-            </View>
-          );
-        })}
-        <Gap height={16} />
-        <View style={styles.content}>
-          <Text style={styles.lemaTitle}>{item.lema}</Text>
-          <Text style={styles.label}>Kata dasar</Text>
-        </View>
-        {item.arti.map((val, index) => {
-          return (
-            <View style={styles.subContent} key={index}>
-              <View style={{flexDirection: 'row'}}>
-                <Text>{index + 1}</Text>
-                <View style={{paddingHorizontal: 10}}>
-                  <Text style={styles.label}>{val.kelas_kata}</Text>
-                  <Text style={styles.desc}>{val.deskripsi}</Text>
-                </View>
-              </View>
-              {index === item.arti.length - 1 ? <Gap height={20} /> : null}
-            </View>
-          );
-        })}
-      </>
-    );
-  };
-
-  const onLetterPress = letter => {
+  const onLetterPress = useCallback(letter => {
     setSelectedFilter(letter);
-  };
+  }, []);
 
-  const renderLetterButton = ({item}) => (
-    <TouchableOpacity onPress={() => onLetterPress(item)}>
-      <View
-        style={{
-          marginTop: 20,
-          marginHorizontal: 5,
-          width: 40,
-          height: 40,
-          borderRadius: 100,
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderColor: 'white',
-          borderWidth: 2,
-          backgroundColor: selectedFilter === item ? 'white' : '#c0392b',
-        }}>
-        <Text
-          style={{
-            color: selectedFilter === item ? '#c0392b' : 'white',
-            fontFamily: fonts.differ.normal,
-          }}>
-          {item}
-        </Text>
-      </View>
-    </TouchableOpacity>
+  // Improve load more logic with loading indicator
+  const loadMoreData = useCallback(() => {
+    if (loading || displayedData.length >= filteredList.length) {
+      setEndReached(displayedData.length >= filteredList.length);
+      return;
+    }
+
+    setLoading(true);
+
+    // Simulate network delay for smoother UX
+    setTimeout(() => {
+      const newData = filteredList.slice(
+        displayedData.length,
+        displayedData.length + ITEMS_PER_PAGE,
+      );
+
+      setDisplayedData(prevData => [...prevData, ...newData]);
+      setLoading(false);
+      setEndReached(
+        displayedData.length + newData.length >= filteredList.length,
+      );
+    }, 1000);
+  }, [displayedData.length, filteredList, loading]);
+
+  const getItemLayout = useCallback(
+    (_, index) => ({
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    }),
+    [],
   );
 
+  const renderLetterButton = useCallback(
+    ({item}) => (
+      <LetterButton
+        letter={item}
+        isSelected={selectedFilter === item}
+        onPress={onLetterPress}
+      />
+    ),
+    [selectedFilter, onLetterPress],
+  );
+
+  const renderWord = useCallback(
+    ({item}) => (
+      <WordItem item={item} onPress={() => navigation.navigate('Detail')} />
+    ),
+    [onLetterPress, navigation],
+  );
+
+  const renderFooter = useCallback(() => {
+    if (!loading && !endReached) return null;
+
+    return (
+      <View style={styles.footerContainer}>
+        {loading && <ActivityIndicator size="large" color="#999999" />}
+        {endReached && (
+          <Text style={styles.endListText}>No more words to load</Text>
+        )}
+      </View>
+    );
+  }, [loading, endReached]);
+
+  const keyExtractor = useCallback((_, index) => index.toString(), []);
+  const letterKeyExtractor = useCallback(item => item, []);
+
   return (
-    <>
-      <View style={styles.page}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>Kamus Bahasa 🇮🇩</Text>
-          <Text style={styles.headerDesc}>
-            Membantu pencarian definisi kata atau frasa berdasarkan Kamus Besar
-            Bahasa Indonesia (KBBI).
-          </Text>
-          <Gap height={20} />
-          <View style={styles.searchContainer}>
-            <View style={styles.inputContainer}>
-              <IconSearch />
-              <Gap width={10} />
-              <TextInput
-                style={styles.input}
-                onChangeText={val => setWordToFind(val)}
-                value={wordToFind}
-                placeholder="Cari kata atau frasa"
-                editable={true}
-                onSubmitEditing={onSubmitSearching}
-                color="black"
-                placeholderTextColor="gray"
-              />
-            </View>
-            {/* <TouchableOpacity style={{}} onPress={() => setWordToFind('')}>
-              <IconClose width={20} />
-            </TouchableOpacity> */}
+    <View style={styles.page}>
+      <View style={styles.headerContainer}>
+        {!inputFocused && (
+          <>
+            <Text style={styles.headerTitle}>Kamus Bahasa 🇮🇩</Text>
+            <Text style={styles.headerDesc}>
+              Memfasilitasi pencarian definisi kata atau frasa berdasarkan Kamus
+              Besar Bahasa Indonesia (KBBI).
+            </Text>
+          </>
+        )}
+
+        <Gap height={20} />
+        <View style={styles.searchContainer}>
+          <View style={styles.inputContainer}>
+            <IconSearch />
+            <Gap width={10} />
+            <TextInput
+              style={styles.input}
+              onChangeText={setWordToFind}
+              value={wordToFind}
+              placeholder="Cari kata atau frasa"
+              editable={true}
+              onSubmitEditing={onSubmitSearching}
+              color="black"
+              placeholderTextColor="gray"
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
+            />
           </View>
-        </View>
-        <View style={{backgroundColor: '#c0392b', paddingBottom: 18}}>
-          <FlatList
-            data={['#'].concat(alphabetLetters)}
-            renderItem={renderLetterButton}
-            keyExtractor={item => item}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{paddingHorizontal: 10}}
-          />
-        </View>
-
-        {/* <FlatList
-          data={definition}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => index}
-        /> */}
-        {/* <Text style={styles.footer}>©CraftWith Naandalist</Text> */}
-
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'white',
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-          }}>
-          <Text style={{color: 'black'}}>Huhuhu</Text>
+          {wordToFind !== '' && (
+            <TouchableOpacity onPress={() => setWordToFind('')}>
+              <IconClose width={20} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
-    </>
+      <View style={styles.alphabetContainer}>
+        <FlatList
+          data={alphabetLetters}
+          renderItem={renderLetterButton}
+          keyExtractor={letterKeyExtractor}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.alphabetList}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          windowSize={5}
+          removeClippedSubviews={true}
+        />
+      </View>
+
+      <View style={styles.wordListContainer}>
+        <FlatList
+          data={displayedData}
+          renderItem={renderWord}
+          keyExtractor={keyExtractor}
+          onEndReached={loadMoreData}
+          onEndReachedThreshold={0.5}
+          getItemLayout={getItemLayout}
+          removeClippedSubviews={true}
+          initialNumToRender={15}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          keyboardShouldPersistTaps="handled"
+          windowSize={10}
+          ListFooterComponent={renderFooter}
+        />
+      </View>
+    </View>
   );
 }
 
@@ -200,7 +251,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.page,
   },
   headerContainer: {
-    // backgroundColor: colors.tertiary,
     backgroundColor: '#c0392b',
     paddingHorizontal: 16,
     paddingTop: 20,
@@ -226,11 +276,48 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   input: {
     height: 50,
-    width: '80%',
-    colors: 'black',
+    flex: 1,
+    color: 'black',
+  },
+  alphabetContainer: {
+    backgroundColor: '#c0392b',
+    paddingBottom: 18,
+  },
+  alphabetList: {
+    paddingHorizontal: 10,
+  },
+  letterButton: {
+    marginTop: 20,
+    marginHorizontal: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: 'white',
+    borderWidth: 2,
+  },
+  letterText: {
+    fontFamily: fonts.differ.normal,
+  },
+  wordListContainer: {
+    flex: 1,
+    backgroundColor: '#FFF',
+    paddingHorizontal: 20,
+    paddingVertical: 0,
+  },
+  wordItem: {
+    marginTop: 20,
+    marginHorizontal: 5,
+  },
+  wordText: {
+    color: 'black',
+    fontSize: 18,
+    fontFamily: fonts.primary[600],
   },
   content: {
     backgroundColor: colors.white,
@@ -241,6 +328,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingHorizontal: 16,
     paddingVertical: 5,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+  },
+  descriptionContainer: {
+    paddingHorizontal: 10,
   },
   lemaTitle: {
     fontSize: 20,
@@ -253,20 +346,14 @@ const styles = StyleSheet.create({
     color: colors.text.subTitle,
     fontStyle: 'italic',
   },
-  border: {
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
   desc: {
     fontSize: 14,
     fontFamily: fonts.primary[600],
     color: colors.text.primary,
-    // backgroundColor:'yellow'
   },
-  footer: {
-    textAlign: 'center',
-    paddingVertical: 10,
-    fontFamily: fonts.primary[400],
-    backgroundColor: colors.white,
+  footerContainer: {
+    paddingVertical: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
