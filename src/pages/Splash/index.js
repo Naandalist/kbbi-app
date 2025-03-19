@@ -15,7 +15,7 @@ export default function SplashScreen({navigation}) {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    setTimeout(() => navigation.replace('Home'), 3000);
+    setTimeout(() => navigation.replace('Home'), 1000);
   });
 
   return (

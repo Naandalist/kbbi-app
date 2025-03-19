@@ -1,5 +1,5 @@
 import React from 'react';
-import {HomeScreen, SplashScreen} from '../pages';
+import {HomeScreen, SplashScreen, DetailScreen} from '../pages';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
@@ -15,6 +15,11 @@ export default function Router() {
       <Stack.Screen
         name="Home"
         component={HomeScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Detail"
+        component={DetailScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>
