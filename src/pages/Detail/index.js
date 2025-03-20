@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,177 +12,224 @@ import {IconExit} from '../../assets';
 import {Gap} from '../../components';
 import {removeTrailingDigits as sanitizeText} from '../../utils';
 
+// Header Component
+const Header = ({onPress}) => {
+  return (
+    <View style={styles.header}>
+      <TouchableOpacity onPress={onPress}>
+        <View style={styles.backButtonContainer}>
+          <View style={styles.arrowContainer}>
+            <IconExit />
+          </View>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+// Card Section Component
+const CardSection = ({children}) => {
+  return (
+    <View style={styles.cardSection}>
+      <View style={styles.bodySection}>{children}</View>
+    </View>
+  );
+};
+
+// Info Section Component
+const InfoSection = ({label, exponent, content}) => {
+  return (
+    <View style={styles.infoSection}>
+      {label && (
+        <View style={styles.wrapperLabelText}>
+          <Text style={styles.labelText}>{label}</Text>
+          {exponent && (
+            <Text style={styles.exponentText}>{` ${exponent}`}</Text>
+          )}
+        </View>
+      )}
+      {content && (
+        <Text style={[styles.contentText, styles.boldText]}>{content}</Text>
+      )}
+    </View>
+  );
+};
+
+// Meaning Item Component
+const MeaningItem = ({index, partOfSpeech, description, etimo}) => {
+  return (
+    <View style={styles.meaningContainer}>
+      <Text style={styles.indexText}>{index}. </Text>
+      <View>
+        {etimo ? (
+          <>
+            <Text style={styles.partOfSpeechText}>{partOfSpeech} </Text>
+            <Gap height={3} />
+            <Text style={styles.descriptionText}>{description} </Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.descriptionText}>{description} </Text>
+            <Gap height={3} />
+            <Text style={styles.partOfSpeechText}>{partOfSpeech} </Text>
+          </>
+        )}
+      </View>
+    </View>
+  );
+};
+
+// Bullet Item Component
+const BulletItem = ({title, content, isArray = false}) => {
+  return (
+    <View style={styles.meaningContainer}>
+      <Text style={styles.indexText}>- </Text>
+      <View>
+        <Text style={styles.partOfSpeechText}>{title}</Text>
+        <Gap height={3} />
+        {isArray && content.length > 1 ? (
+          content.map((text, index) => (
+            <Text key={index} style={styles.descriptionText}>
+              {index + 1}. {text}.
+            </Text>
+          ))
+        ) : (
+          <Text style={styles.descriptionText}>{content} </Text>
+        )}
+      </View>
+    </View>
+  );
+};
+
+// Main Detail Component
 export default function Detail({route, navigation}) {
+  const [wordDetail, setWordDetail] = useState(dataDummy);
+  const [showMore, setShowMore] = useState(false);
+
   const {pressedWord, selectedLetter} = route.params;
+
+  const isEtimologyExist = () => {
+    return (
+      wordDetail?.etimologi?.bahasaAsal !== '' &&
+      wordDetail?.etimologi?.arti !== '' &&
+      wordDetail?.etimologi?.kataAsal !== ''
+    );
+  };
+
+  const isDataEmpty = data => {
+    return data.length < 1;
+  };
 
   return (
     <View style={styles.page}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <View style={styles.backButtonContainer}>
-            <View style={styles.arrowContainer}>
-              <IconExit />
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
+      <Header onPress={() => navigation.goBack()} />
 
-      {/* Body */}
       <ScrollView>
-        {dataDummy.data.map((item, index) => (
-          <View key={index} style={styles.cardSection}>
-            <View style={styles.bodySection}>
-              <View style={styles.infoSection}>
-                <View style={styles.wrapperLabelText}>
-                  <Text style={styles.labelText}>{`Kata dasar`}</Text>
-                  <Text style={styles.exponentText}>{` ${index + 1}`}</Text>
-                </View>
-                <Text style={[styles.contentText, styles.boldText]}>
-                  {sanitizeText(item.lema)}
-                </Text>
-              </View>
+        {!isDataEmpty(wordDetail.data) &&
+          wordDetail.data.map((item, index) => (
+            <CardSection key={index}>
+              <InfoSection
+                label="Kata dasar"
+                exponent={index + 1}
+                content={sanitizeText(item.lema)}
+              />
 
               {item.arti.map((arti, index) => (
-                <View key={index} style={styles.meaningContainer}>
-                  <Text style={styles.indexText}>{index + 1}. </Text>
-                  <View>
-                    <Text style={styles.partOfSpeechText}>
-                      {arti.kelas_kata}{' '}
-                    </Text>
-                    <Gap height={3} />
-                    <Text style={styles.descriptionText}>
-                      {arti.deskripsi}{' '}
-                    </Text>
-                  </View>
-                </View>
+                <MeaningItem
+                  key={index}
+                  index={index + 1}
+                  partOfSpeech={arti.kelas_kata}
+                  description={arti.deskripsi}
+                />
               ))}
-            </View>
-          </View>
-        ))}
+            </CardSection>
+          ))}
 
-        <Gap height={20} />
+        {/* <Gap height={20} /> */}
 
-        <View style={styles.cardSection}>
-          <View style={styles.bodySection}>
-            <View style={styles.infoSection}>
-              <Text style={styles.labelText}>
-                {`Hasil studi penelusuran asal-usul kata\nsecara etimologi`}
-              </Text>
-            </View>
+        {/* Etymology section */}
 
-            <View style={styles.meaningContainer}>
-              <Text style={styles.indexText}>1. </Text>
-              <View>
-                <Text style={styles.partOfSpeechText}>
-                  Sumber bahasa asalnya
-                </Text>
-                <Gap height={3} />
-                <Text style={styles.descriptionText}>
-                  {dataDummy.etimologi.bahasaAsal}{' '}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.meaningContainer}>
-              <Text style={styles.indexText}>2. </Text>
-              <View>
-                <Text style={styles.partOfSpeechText}>
-                  Arti, makna, atau terjemahnya
-                </Text>
-                <Gap height={3} />
-                <Text style={styles.descriptionText}>
-                  {dataDummy.etimologi.arti}{' '}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.meaningContainer}>
-              <Text style={styles.indexText}>3. </Text>
-              <View>
-                <Text style={styles.partOfSpeechText}>
-                  Kata asal dari bahasa aslinya
-                </Text>
-                <Gap height={3} />
-                <Text style={styles.descriptionText}>
-                  {dataDummy.etimologi.kataAsal}{' '}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
+        {isEtimologyExist() && (
+          <CardSection>
+            <InfoSection
+              label={`Hasil studi penelusuran asal-usul kata\nsecara etimologi`}
+            />
+            <MeaningItem
+              index="1"
+              partOfSpeech="Sumber bahasa asalnya"
+              description={wordDetail.etimologi.bahasaAsal}
+              etimo={true}
+            />
+            <MeaningItem
+              index="2"
+              partOfSpeech="Arti, makna, atau terjemahnya"
+              description={wordDetail.etimologi.arti}
+              etimo={true}
+            />
+            <MeaningItem
+              index="3"
+              partOfSpeech="Kata asal dari bahasa aslinya"
+              description={wordDetail.etimologi.kataAsal}
+              etimo={true}
+            />
+          </CardSection>
+        )}
 
-        <View style={styles.cardSection}>
-          <View style={styles.bodySection}>
-            <View style={styles.infoSection}></View>
-            <View style={styles.meaningContainer}>
-              <Text style={styles.indexText}>• </Text>
-              <View>
-                <Text style={styles.partOfSpeechText}>Istilah</Text>
-                <Gap height={3} />
-                <Text style={styles.descriptionText}>{dataDummy.istilah} </Text>
-              </View>
-            </View>
-            <View style={styles.meaningContainer}>
-              <Text style={styles.indexText}>• </Text>
-              <View>
-                <Text style={styles.partOfSpeechText}>Entri</Text>
-                <Gap height={3} />
-                <Text style={styles.descriptionText}>{dataDummy.entri} </Text>
-              </View>
-            </View>
-            <View style={styles.meaningContainer}>
-              <Text style={styles.indexText}>• </Text>
-              <View>
-                <Text style={styles.partOfSpeechText}>Bentuk tidak baku</Text>
-                <Gap height={3} />
-                <Text style={styles.descriptionText}>
-                  {dataDummy.bentukTidakBaku}{' '}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.meaningContainer}>
-              <Text style={styles.indexText}>• </Text>
-              <View>
-                <Text style={styles.partOfSpeechText}>Peribahasa</Text>
-                <Gap height={3} />
-                {dataDummy.peribahasa.map((text, index) => {
-                  return (
-                    <Text key={index} style={styles.descriptionText}>
-                      {index + 1}. {text}.
-                    </Text>
-                  );
-                })}
-              </View>
-            </View>
-            <View style={styles.meaningContainer}>
-              <Text style={styles.indexText}>• </Text>
-              <View>
-                <Text style={styles.partOfSpeechText}>Kata turunan</Text>
-                <Gap height={3} />
-                {dataDummy.kataTurunan.map((text, index) => {
-                  return (
-                    <Text key={index} style={styles.descriptionText}>
-                      {index + 1}. {text}.
-                    </Text>
-                  );
-                })}
-              </View>
-            </View>
-            <View style={styles.meaningContainer}>
-              <Text style={styles.indexText}>• </Text>
-              <View>
-                <Text style={styles.partOfSpeechText}>Gabungan Kata</Text>
-                <Gap height={3} />
-                {dataDummy.gabunganKata.map((text, index) => {
-                  return (
-                    <Text key={index} style={styles.descriptionText}>
-                      {index + 1}. {text}.
-                    </Text>
-                  );
-                })}
-              </View>
-            </View>
-          </View>
-        </View>
+        {/* Additional information section */}
+        {showMore && (
+          <CardSection>
+            <InfoSection />
+
+            {!isDataEmpty(wordDetail.istilah) && (
+              <BulletItem title="Istilah" content={wordDetail.istilah} />
+            )}
+
+            {!isDataEmpty(wordDetail.entri) && (
+              <BulletItem
+                title="Entri"
+                content={sanitizeText(wordDetail.entri)}
+              />
+            )}
+
+            {!isDataEmpty(wordDetail.bentukTidakBaku) && (
+              <BulletItem
+                title="Bentuk tidak baku"
+                content={sanitizeText(wordDetail.bentukTidakBaku)}
+              />
+            )}
+
+            {!isDataEmpty(wordDetail?.peribahasa) && (
+              <BulletItem
+                title="Peribahasa"
+                content={wordDetail.peribahasa}
+                isArray
+              />
+            )}
+
+            {!isDataEmpty(wordDetail?.kataTurunan) && (
+              <BulletItem
+                title="Kata turunan"
+                content={wordDetail.kataTurunan}
+                isArray
+              />
+            )}
+
+            {!isDataEmpty(wordDetail?.gabunganKata) && (
+              <BulletItem
+                title="Gabungan Kata "
+                content={wordDetail.gabunganKata}
+                isArray
+              />
+            )}
+          </CardSection>
+        )}
+
+        <TouchableOpacity onPress={() => setShowMore(!showMore)}>
+          <Text
+            style={{color: 'black', textAlign: 'center', marginVertical: 20}}>
+            {`Tampilkan Lebih ${showMore ? 'Sedikit' : 'Banyak'}`}
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
