@@ -6,7 +6,7 @@ const Loading = () => {
   return (
     <View style={styles.wrapper}>
       <ActivityIndicator size="large" color={colors.white} />
-      <Text style={styles.text}>Loading...</Text>
+      <Text style={styles.text}>Memuat data...</Text>
     </View>
   );
 };
