@@ -23,10 +23,19 @@ const service = async ({url, method, data}) => {
     });
 };
 
-export const getData = async (text) => {
-  return service({
-    url: `${API_URL}/entri/${text}`,
-    method: 'GET',
-    data: null,
-  });
+export const getData = async (letter, word) => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  try {
+    await delay(10);
+
+    return await service({
+      url: `${API_URL}/${letter}/${word}.json`,
+      method: 'GET',
+      data: null,
+    });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
 };
