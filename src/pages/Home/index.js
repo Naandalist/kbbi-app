@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import React, {useState, useCallback, memo, useEffect} from 'react';
-import {colors, fonts, showError} from '../../utils';
+import React, {useState, useCallback, memo, useEffect, useRef} from 'react';
+import {colors, fonts, fuzzySearch, showError} from '../../utils';
 import {IconArrowRight, IconClose, IconSearch} from '../../assets';
 import {Gap} from '../../components';
 import {getData} from '../../utils/api';
@@ -57,14 +57,27 @@ export default function HomeScreen({navigation}) {
   const [endReached, setEndReached] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
 
+  const flatListRef = useRef(null);
+
+  const scrollToTop = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({offset: 0, animated: true});
+    }
+  };
+
   // Filter wordlist based on selected letter
   useEffect(() => {
-    let filtered = wordlist[selectedFilter] || [];
+    let selectedWrodlist = wordlist[selectedFilter] || [];
 
-    setFilteredList(filtered);
-    setDisplayedData(filtered.slice(0, ITEMS_PER_PAGE));
+    // Filter words based on the input
+    if (wordToFind.length > 1) {
+      selectedWrodlist = fuzzySearch(selectedWrodlist, wordToFind);
+    }
+
+    setFilteredList(selectedWrodlist);
+    setDisplayedData(selectedWrodlist.slice(0, ITEMS_PER_PAGE));
     setEndReached(false);
-  }, [selectedFilter]);
+  }, [selectedFilter, wordToFind]);
 
   const getDataFromKBBI = useCallback(async () => {
     try {
@@ -101,6 +114,7 @@ export default function HomeScreen({navigation}) {
 
   const onLetterPress = useCallback(letter => {
     setSelectedFilter(letter);
+    setWordToFind('');
   }, []);
 
   // Improve load more logic with loading indicator
@@ -156,14 +170,14 @@ export default function HomeScreen({navigation}) {
             onPress={() =>
               navigation.navigate('Detail', {
                 pressedWord: item,
-                selectedLetter: selectedFilter,
+                selectedLetter: selectedFilter.toLocaleLowerCase(),
               })
             }
           />
         </View>
       </>
     ),
-    [onLetterPress, navigation],
+    [onLetterPress, selectedFilter],
   );
 
   const renderFooter = useCallback(() => {
@@ -172,12 +186,18 @@ export default function HomeScreen({navigation}) {
     return (
       <View style={styles.footerContainer}>
         {loading && <ActivityIndicator size="large" color="#999999" />}
-        {endReached && (
+        {endReached && wordToFind.length < 1 && (
           <Text style={styles.endListText}>No more words to load</Text>
         )}
       </View>
     );
   }, [loading, endReached]);
+
+  const renderEmpty = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyText}>Kata tidak ditemukan dalam KBBI.</Text>
+    </View>
+  );
 
   const keyExtractor = useCallback((_, index) => index.toString(), []);
   const letterKeyExtractor = useCallback(item => item, []);
@@ -202,15 +222,21 @@ export default function HomeScreen({navigation}) {
             <Gap width={10} />
             <TextInput
               style={styles.input}
-              onChangeText={setWordToFind}
+              onChangeText={val => {
+                setWordToFind(val);
+                scrollToTop();
+              }}
               value={wordToFind}
               placeholder="Cari kata atau frasa"
               editable={true}
               onSubmitEditing={onSubmitSearching}
               color="black"
               placeholderTextColor="gray"
-              onFocus={() => setInputFocused(true)}
+              onFocus={() => {
+                setInputFocused(true);
+              }}
               onBlur={() => setInputFocused(false)}
+              Styles={{color: 'black', fontFamily: fonts.primary[400]}}
             />
           </View>
           {wordToFind !== '' && (
@@ -251,6 +277,7 @@ export default function HomeScreen({navigation}) {
           keyboardShouldPersistTaps="handled"
           windowSize={10}
           ListFooterComponent={renderFooter}
+          ListEmptyComponent={renderEmpty}
         />
       </View>
     </View>
@@ -373,5 +400,15 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#888',
   },
 });
