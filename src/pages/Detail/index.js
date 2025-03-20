@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,14 +6,46 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import {dataDummy} from './data';
-import {colors, fonts} from '../../utils';
+import {
+  colors,
+  fonts,
+  sanitizeJsonResponse,
+  showError,
+  removeTrailingDigits as sanitizeText,
+  getData,
+} from '../../utils';
 import {IconExit} from '../../assets';
 import {Gap} from '../../components';
-import {removeTrailingDigits as sanitizeText} from '../../utils';
+import NetInfo from '@react-native-community/netinfo';
+import {useDispatch} from 'react-redux';
+
+const initialData = {
+  istilah: '',
+  entri: '',
+  bentukTidakBaku: '',
+  kataTurunan: [],
+  gabunganKata: [],
+  peribahasa: [],
+  etimologi: {
+    bahasaAsal: '',
+    arti: '',
+    kataAsal: '',
+  },
+  data: [
+    {
+      lema: '',
+      arti: [
+        {
+          kelas_kata: '',
+          deskripsi: '',
+        },
+      ],
+    },
+  ],
+};
 
 // Header Component
-const Header = ({onPress}) => {
+const Header = ({onPress, pressedWord}) => {
   return (
     <View style={styles.header}>
       <TouchableOpacity onPress={onPress}>
@@ -21,6 +53,10 @@ const Header = ({onPress}) => {
           <View style={styles.arrowContainer}>
             <IconExit />
           </View>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={styles.backText}>{`Hasil pencarian: ${pressedWord}`}</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -103,10 +139,60 @@ const BulletItem = ({title, content, isArray = false}) => {
 
 // Main Detail Component
 export default function Detail({route, navigation}) {
-  const [wordDetail, setWordDetail] = useState(dataDummy);
+  const dispatch = useDispatch();
+  const [wordDetail, setWordDetail] = useState(initialData);
   const [showMore, setShowMore] = useState(false);
 
   const {pressedWord, selectedLetter} = route.params;
+
+  const getDataFromKBBI = useCallback(async () => {
+    try {
+      // Check network connectivity first
+      const networkState = await NetInfo.fetch();
+
+      if (!networkState.isConnected) {
+        showError('Device tidak terhubung ke internet.');
+        return;
+      }
+
+      // Set loading state before API call
+      dispatch({type: 'SET_LOADING', value: true});
+
+      try {
+        const response = await getData(selectedLetter, pressedWord);
+
+        if (response.error) {
+          showError('Kata yang dicari tidak ditemukan dalam KBBI.');
+        } else if (response.message === 'Fetch Success') {
+          // Sanitize and set the word details
+          setWordDetail(sanitizeJsonResponse(response.data));
+        }
+
+        return response;
+      } catch (apiError) {
+        console.error('API Error:', apiError);
+
+        // showError('Terjadi kesalahan saat mengambil data dari KBBI.');
+        return null;
+      } finally {
+        dispatch({type: 'SET_LOADING', value: false});
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      showError('Terjadi kesalahan.');
+
+      dispatch({type: 'SET_LOADING', value: false});
+      return null;
+    }
+  }, [selectedLetter, pressedWord]);
+
+  useEffect(() => {
+    getDataFromKBBI();
+  }, []);
+
+  const isDataEmpty = data => {
+    return data?.length < 1;
+  };
 
   const isEtimologyExist = () => {
     return (
@@ -116,17 +202,22 @@ export default function Detail({route, navigation}) {
     );
   };
 
-  const isDataEmpty = data => {
-    return data.length < 1;
+  const isAdditionalInfoExist = () => {
+    return (
+      !isDataEmpty(wordDetail?.bentukTidakBaku) ||
+      !isDataEmpty(wordDetail?.peribahasa) ||
+      !isDataEmpty(wordDetail?.kataTurunan) ||
+      !isDataEmpty(wordDetail?.gabunganKata)
+    );
   };
 
   return (
     <View style={styles.page}>
-      <Header onPress={() => navigation.goBack()} />
+      <Header pressedWord={pressedWord} onPress={() => navigation.goBack()} />
 
       <ScrollView>
-        {!isDataEmpty(wordDetail.data) &&
-          wordDetail.data.map((item, index) => (
+        {!isDataEmpty(wordDetail?.data[0].arti[0].deskripsi) &&
+          wordDetail?.data.map((item, index) => (
             <CardSection key={index}>
               <InfoSection
                 label="Kata dasar"
@@ -145,8 +236,6 @@ export default function Detail({route, navigation}) {
             </CardSection>
           ))}
 
-        {/* <Gap height={20} /> */}
-
         {/* Etymology section */}
 
         {isEtimologyExist() && (
@@ -157,51 +246,40 @@ export default function Detail({route, navigation}) {
             <MeaningItem
               index="1"
               partOfSpeech="Sumber bahasa asalnya"
-              description={wordDetail.etimologi.bahasaAsal}
+              description={wordDetail?.etimologi.bahasaAsal}
               etimo={true}
             />
             <MeaningItem
               index="2"
               partOfSpeech="Arti, makna, atau terjemahnya"
-              description={wordDetail.etimologi.arti}
+              description={wordDetail?.etimologi.arti}
               etimo={true}
             />
             <MeaningItem
               index="3"
               partOfSpeech="Kata asal dari bahasa aslinya"
-              description={wordDetail.etimologi.kataAsal}
+              description={wordDetail?.etimologi.kataAsal}
               etimo={true}
             />
           </CardSection>
         )}
 
         {/* Additional information section */}
-        {showMore && (
+        {showMore && isAdditionalInfoExist() && (
           <CardSection>
             <InfoSection />
 
-            {!isDataEmpty(wordDetail.istilah) && (
-              <BulletItem title="Istilah" content={wordDetail.istilah} />
-            )}
-
-            {!isDataEmpty(wordDetail.entri) && (
-              <BulletItem
-                title="Entri"
-                content={sanitizeText(wordDetail.entri)}
-              />
-            )}
-
-            {!isDataEmpty(wordDetail.bentukTidakBaku) && (
+            {!isDataEmpty(wordDetail?.bentukTidakBaku) && (
               <BulletItem
                 title="Bentuk tidak baku"
-                content={sanitizeText(wordDetail.bentukTidakBaku)}
+                content={sanitizeText(wordDetail?.bentukTidakBaku)}
               />
             )}
 
             {!isDataEmpty(wordDetail?.peribahasa) && (
               <BulletItem
                 title="Peribahasa"
-                content={wordDetail.peribahasa}
+                content={wordDetail?.peribahasa}
                 isArray
               />
             )}
@@ -209,7 +287,7 @@ export default function Detail({route, navigation}) {
             {!isDataEmpty(wordDetail?.kataTurunan) && (
               <BulletItem
                 title="Kata turunan"
-                content={wordDetail.kataTurunan}
+                content={wordDetail?.kataTurunan}
                 isArray
               />
             )}
@@ -217,19 +295,21 @@ export default function Detail({route, navigation}) {
             {!isDataEmpty(wordDetail?.gabunganKata) && (
               <BulletItem
                 title="Gabungan Kata "
-                content={wordDetail.gabunganKata}
+                content={wordDetail?.gabunganKata}
                 isArray
               />
             )}
           </CardSection>
         )}
 
-        <TouchableOpacity onPress={() => setShowMore(!showMore)}>
-          <Text
-            style={{color: 'black', textAlign: 'center', marginVertical: 20}}>
-            {`Tampilkan Lebih ${showMore ? 'Sedikit' : 'Banyak'}`}
-          </Text>
-        </TouchableOpacity>
+        {isAdditionalInfoExist() && wordDetail !== initialData && (
+          <TouchableOpacity onPress={() => setShowMore(!showMore)}>
+            <Text
+              style={{color: 'black', textAlign: 'center', marginVertical: 20}}>
+              {`Tampilkan Lebih ${showMore ? 'Sedikit' : 'Banyak'}`}
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </View>
   );
@@ -259,8 +339,7 @@ const styles = StyleSheet.create({
 
   // Back button styles
   backButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingVertical: 10,
   },
   arrowContainer: {
     marginVertical: 20,
@@ -271,6 +350,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontFamily: fonts.primary[600],
     fontSize: 18,
+    marginLeft: 16,
   },
 
   // Word info styles
