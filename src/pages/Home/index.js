@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import React, {useState, useCallback, memo, useEffect} from 'react';
 import {colors, fonts, showError} from '../../utils';
-import {IconClose, IconSearch} from '../../assets';
+import {IconArrowRight, IconClose, IconSearch} from '../../assets';
 import {Gap} from '../../components';
 import {getData} from '../../utils/api';
 import {useDispatch} from 'react-redux';
@@ -149,7 +149,19 @@ export default function HomeScreen({navigation}) {
 
   const renderWord = useCallback(
     ({item}) => (
-      <WordItem item={item} onPress={() => navigation.navigate('Detail')} />
+      <>
+        <View style={styles.wordItemWrapper}>
+          <WordItem
+            item={item}
+            onPress={() =>
+              navigation.navigate('Detail', {
+                pressedWord: item,
+                selectedLetter: selectedFilter,
+              })
+            }
+          />
+        </View>
+      </>
     ),
     [onLetterPress, navigation],
   );
@@ -175,10 +187,10 @@ export default function HomeScreen({navigation}) {
       <View style={styles.headerContainer}>
         {!inputFocused && (
           <>
-            <Text style={styles.headerTitle}>Kamus Bahasa 🇮🇩</Text>
+            <Text style={styles.headerTitle}>Kamus Bahasa Indonesia</Text>
             <Text style={styles.headerDesc}>
-              Memfasilitasi pencarian definisi kata atau frasa berdasarkan Kamus
-              Besar Bahasa Indonesia (KBBI).
+              Fasilitas pencarian definisi kata atau frasa berdasarkan KBBI VI.
+              😁
             </Text>
           </>
         )}
@@ -257,7 +269,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: fonts.differ.normal,
-    fontSize: 30,
+    fontSize: 25,
     color: colors.white,
   },
   headerDesc: {
@@ -309,6 +321,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     paddingHorizontal: 20,
     paddingVertical: 0,
+  },
+  wordItemWrapper: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'grey',
+    borderStyle: 'dashed',
+    paddingBottom: 3,
   },
   wordItem: {
     marginTop: 20,
