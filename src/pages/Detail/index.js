@@ -5,19 +5,19 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
+import {useDispatch} from 'react-redux';
 import {
-  colors,
-  fonts,
   sanitizeJsonResponse,
   showError,
   removeTrailingDigits as sanitizeText,
   getData,
+  fonts,
+  colors,
 } from '../../utils';
-import {IconExit} from '../../assets';
 import {Gap} from '../../components';
-import NetInfo from '@react-native-community/netinfo';
-import {useDispatch} from 'react-redux';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const initialData = {
   istilah: '',
@@ -48,17 +48,17 @@ const initialData = {
 const Header = ({onPress, pressedWord}) => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity onPress={onPress}>
-        <View style={styles.backButtonContainer}>
+      <View style={styles.backButtonContainer}>
+        <TouchableOpacity onPress={onPress}>
           <View style={styles.arrowContainer}>
-            <IconExit />
+            <Icon name="close-outline" size={30} color="black" />
           </View>
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={styles.backText}>{`Hasil pencarian: ${pressedWord}`}</Text>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={styles.backText}>{`Hasil pencarian: ${pressedWord}`}</Text>
+      </View>
     </View>
   );
 };
@@ -85,7 +85,9 @@ const InfoSection = ({label, exponent, content}) => {
         </View>
       )}
       {content && (
-        <Text style={[styles.contentText, styles.boldText]}>{content}</Text>
+        <Text selectable style={[styles.contentText, styles.boldText]}>
+          {content}
+        </Text>
       )}
     </View>
   );
@@ -99,15 +101,23 @@ const MeaningItem = ({index, partOfSpeech, description, etimo}) => {
       <View>
         {etimo ? (
           <>
-            <Text style={styles.partOfSpeechText}>{partOfSpeech} </Text>
+            <Text selectable style={styles.partOfSpeechText}>
+              {partOfSpeech}{' '}
+            </Text>
             <Gap height={3} />
-            <Text style={styles.descriptionText}>{description} </Text>
+            <Text selectable style={styles.descriptionText}>
+              {description}{' '}
+            </Text>
           </>
         ) : (
           <>
-            <Text style={styles.descriptionText}>{description} </Text>
+            <Text selectable style={styles.descriptionText}>
+              {description}{' '}
+            </Text>
             <Gap height={3} />
-            <Text style={styles.partOfSpeechText}>{partOfSpeech} </Text>
+            <Text selectable style={styles.partOfSpeechText}>
+              {partOfSpeech}{' '}
+            </Text>
           </>
         )}
       </View>
@@ -121,16 +131,20 @@ const BulletItem = ({title, content, isArray = false}) => {
     <View style={styles.meaningContainer}>
       <Text style={styles.indexText}>- </Text>
       <View>
-        <Text style={styles.partOfSpeechText}>{title}</Text>
+        <Text selectable style={styles.partOfSpeechText}>
+          {title}
+        </Text>
         <Gap height={3} />
         {isArray && content.length > 1 ? (
           content.map((text, index) => (
-            <Text key={index} style={styles.descriptionText}>
+            <Text selectable key={index} style={styles.descriptionText}>
               {index + 1}. {text}.
             </Text>
           ))
         ) : (
-          <Text style={styles.descriptionText}>{content} </Text>
+          <Text selectable style={styles.descriptionText}>
+            {content}{' '}
+          </Text>
         )}
       </View>
     </View>
@@ -147,14 +161,6 @@ export default function Detail({route, navigation}) {
 
   const getDataFromKBBI = useCallback(async () => {
     try {
-      // Check network connectivity first
-      const networkState = await NetInfo.fetch();
-
-      if (!networkState.isConnected) {
-        showError('Device tidak terhubung ke internet.');
-        return;
-      }
-
       // Set loading state before API call
       dispatch({type: 'SET_LOADING', value: true});
 
@@ -170,9 +176,9 @@ export default function Detail({route, navigation}) {
 
         return response;
       } catch (apiError) {
-        console.error('API Error:', apiError);
+        console.error('API Error:', JSON.stringify(apiError));
 
-        // showError('Terjadi kesalahan saat mengambil data dari KBBI.');
+        showError('Terjadi kesalahan saat mengambil data dari KBBI.');
         return null;
       } finally {
         dispatch({type: 'SET_LOADING', value: false});
@@ -184,11 +190,11 @@ export default function Detail({route, navigation}) {
       dispatch({type: 'SET_LOADING', value: false});
       return null;
     }
-  }, [selectedLetter, pressedWord]);
+  }, [dispatch, selectedLetter, pressedWord]);
 
   useEffect(() => {
     getDataFromKBBI();
-  }, []);
+  }, [getDataFromKBBI]);
 
   const isDataEmpty = data => {
     return data?.length < 1;
@@ -212,7 +218,7 @@ export default function Detail({route, navigation}) {
   };
 
   return (
-    <View style={styles.page}>
+    <SafeAreaView style={styles.page}>
       <Header pressedWord={pressedWord} onPress={() => navigation.goBack()} />
 
       <ScrollView>
@@ -225,9 +231,9 @@ export default function Detail({route, navigation}) {
                 content={sanitizeText(item.lema)}
               />
 
-              {item.arti.map((arti, index) => (
+              {item.arti.map((arti, i) => (
                 <MeaningItem
-                  key={index}
+                  key={i}
                   index={index + 1}
                   partOfSpeech={arti.kelas_kata}
                   description={arti.deskripsi}
@@ -237,11 +243,10 @@ export default function Detail({route, navigation}) {
           ))}
 
         {/* Etymology section */}
-
         {isEtimologyExist() && (
           <CardSection>
             <InfoSection
-              label={`Hasil studi penelusuran asal-usul kata\nsecara etimologi`}
+              label={'Hasil studi penelusuran asal-usul kata\nsecara etimologi'}
             />
             <MeaningItem
               index="1"
@@ -304,14 +309,13 @@ export default function Detail({route, navigation}) {
 
         {isAdditionalInfoExist() && wordDetail !== initialData && (
           <TouchableOpacity onPress={() => setShowMore(!showMore)}>
-            <Text
-              style={{color: 'black', textAlign: 'center', marginVertical: 20}}>
+            <Text style={styles.showMoreText}>
               {`Tampilkan Lebih ${showMore ? 'Sedikit' : 'Banyak'}`}
             </Text>
           </TouchableOpacity>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -322,29 +326,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.page,
   },
   header: {
-    backgroundColor: '#FFF',
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
     borderBottomColor: colors.page,
   },
   cardSection: {
-    backgroundColor: '#FFF',
+    backgroundColor: colors.white,
     paddingBottom: 20,
     marginTop: 10,
   },
   bodySection: {
-    backgroundColor: '#FFF',
+    backgroundColor: colors.white,
     paddingHorizontal: 16,
     paddingTop: 10,
   },
 
-  // Back button styles
   backButtonContainer: {
     paddingVertical: 10,
   },
   arrowContainer: {
-    marginVertical: 20,
-    marginLeft: 20,
-    marginRight: 10,
+    marginTop: 20,
+    marginBottom: 10,
+    marginLeft: 10,
+    flexDirection: 'row',
   },
   backText: {
     color: 'black',
@@ -401,5 +405,10 @@ const styles = StyleSheet.create({
   descriptionText: {
     fontFamily: fonts.primary[700],
     color: 'black',
+  },
+  showMoreText: {
+    color: 'grey',
+    textAlign: 'center',
+    marginVertical: 20,
   },
 });

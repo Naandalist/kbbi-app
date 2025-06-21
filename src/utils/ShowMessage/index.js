@@ -5,9 +5,10 @@ export const showError = message => {
   showMessage({
     message: message,
     type: 'default',
-    backgroundColor: colors.error,
+    backgroundColor: colors.primary,
     color: colors.white,
     icon: 'danger',
+    position: 'bottom',
   });
 };
 

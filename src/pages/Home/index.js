@@ -1,3 +1,4 @@
+import {useState, useCallback, memo, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,14 +7,17 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  SafeAreaView,
 } from 'react-native';
-import React, {useState, useCallback, memo, useEffect, useRef} from 'react';
-import {colors, fonts, fuzzySearch, showError} from '../../utils';
-import {IconArrowRight, IconClose, IconSearch} from '../../assets';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import {
+  colors,
+  fonts,
+  fuzzySearch,
+  networkStatus,
+  showError,
+} from '../../utils';
 import {Gap} from '../../components';
-import {getData} from '../../utils/api';
-import {useDispatch} from 'react-redux';
-import NetInfo from '@react-native-community/netinfo';
 import {wordlist} from '../../constants/wordlist';
 
 const ITEM_HEIGHT = 40;
@@ -37,10 +41,13 @@ const LetterButton = memo(({letter, isSelected, onPress}) => (
     <View
       style={[
         styles.letterButton,
-        {backgroundColor: isSelected ? 'white' : '#c0392b'},
+        isSelected ? styles.selectedButton : styles.unselectedButton,
       ]}>
       <Text
-        style={[styles.letterText, {color: isSelected ? '#c0392b' : 'white'}]}>
+        style={[
+          styles.letterText,
+          isSelected ? styles.selectedText : styles.unselectedText,
+        ]}>
         {letter}
       </Text>
     </View>
@@ -48,22 +55,12 @@ const LetterButton = memo(({letter, isSelected, onPress}) => (
 ));
 
 export default function HomeScreen({navigation}) {
-  const dispatch = useDispatch();
   const [wordToFind, setWordToFind] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('A');
   const [displayedData, setDisplayedData] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [endReached, setEndReached] = useState(false);
-  const [inputFocused, setInputFocused] = useState(false);
-
-  const flatListRef = useRef(null);
-
-  const scrollToTop = () => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({offset: 0, animated: true});
-    }
-  };
 
   // Filter wordlist based on selected letter
   useEffect(() => {
@@ -78,39 +75,6 @@ export default function HomeScreen({navigation}) {
     setDisplayedData(selectedWrodlist.slice(0, ITEMS_PER_PAGE));
     setEndReached(false);
   }, [selectedFilter, wordToFind]);
-
-  const getDataFromKBBI = useCallback(async () => {
-    try {
-      const netInfo = await NetInfo.fetch();
-      if (!netInfo.isConnected) {
-        return showError('Mohon pastikan device terhubung dengan internet!');
-      }
-
-      if (wordToFind.length <= 1) {
-        return showError('Ketikan kata minimal 2 huruf');
-      }
-
-      dispatch({type: 'SET_LOADING', value: true});
-      const response = await getData(wordToFind);
-      dispatch({type: 'SET_LOADING', value: false});
-
-      if (response.error) {
-        showError('Kata yang dicari tidak ditemukan dalam KBBI.');
-        return;
-      }
-
-      if (!response.error && response.data.status) {
-        // setDefinition(response.data.data);
-      }
-    } catch (error) {
-      dispatch({type: 'SET_LOADING', value: false});
-      showError('Terjadi kesalahan dalam pencarian');
-    }
-  }, [wordToFind, dispatch]);
-
-  const onSubmitSearching = useCallback(() => {
-    getDataFromKBBI();
-  }, [getDataFromKBBI]);
 
   const onLetterPress = useCallback(letter => {
     setSelectedFilter(letter);
@@ -161,27 +125,66 @@ export default function HomeScreen({navigation}) {
     [selectedFilter, onLetterPress],
   );
 
+  const handleWordPress = useCallback(
+    async item => {
+      try {
+        const isConnected = await networkStatus.isConnected();
+
+        if (isConnected) {
+          navigation.navigate('Detail', {
+            pressedWord: item,
+            selectedLetter: selectedFilter.toLowerCase(),
+          });
+        } else {
+          showError('Gagal memuat data. Periksa koneksi internet Anda!');
+        }
+      } catch (error) {
+        console.error('Error checking network status:', error);
+      }
+    },
+    [navigation, selectedFilter],
+  );
+
   const renderWord = useCallback(
     ({item}) => (
       <>
         <View style={styles.wordItemWrapper}>
-          <WordItem
-            item={item}
-            onPress={() =>
-              navigation.navigate('Detail', {
-                pressedWord: item,
-                selectedLetter: selectedFilter.toLocaleLowerCase(),
-              })
-            }
-          />
+          <WordItem item={item} onPress={() => handleWordPress(item)} />
         </View>
       </>
     ),
-    [onLetterPress, selectedFilter],
+    [handleWordPress],
   );
 
+  const renderHeader = () => {
+    return (
+      <View style={styles.searchContainer}>
+        <View style={styles.inputContainer}>
+          <Icon name="search" size={20} color={colors.primary} />
+          <Gap width={10} />
+          <TextInput
+            style={styles.input}
+            onChangeText={setWordToFind}
+            value={wordToFind}
+            placeholder="Cari kata atau frasa"
+            editable={true}
+            color={colors.black}
+            placeholderTextColor="gray"
+          />
+        </View>
+        {wordToFind !== '' && (
+          <TouchableOpacity onPress={() => setWordToFind('')}>
+            <Text style={styles.clearText}>Clear</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
+
   const renderFooter = useCallback(() => {
-    if (!loading && !endReached) return null;
+    if (!loading && !endReached) {
+      return null;
+    }
 
     return (
       <View style={styles.footerContainer}>
@@ -191,7 +194,7 @@ export default function HomeScreen({navigation}) {
         )}
       </View>
     );
-  }, [loading, endReached]);
+  }, [loading, endReached, wordToFind.length]);
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -203,48 +206,12 @@ export default function HomeScreen({navigation}) {
   const letterKeyExtractor = useCallback(item => item, []);
 
   return (
-    <View style={styles.page}>
+    <SafeAreaView style={styles.page}>
       <View style={styles.headerContainer}>
-        {!inputFocused && (
-          <>
-            <Text style={styles.headerTitle}>Kamus Bahasa Indonesia</Text>
-            <Text style={styles.headerDesc}>
-              Fasilitas pencarian definisi kata atau frasa berdasarkan KBBI VI.
-              😁
-            </Text>
-          </>
-        )}
-
-        <Gap height={20} />
-        <View style={styles.searchContainer}>
-          <View style={styles.inputContainer}>
-            <IconSearch />
-            <Gap width={10} />
-            <TextInput
-              style={styles.input}
-              onChangeText={val => {
-                setWordToFind(val);
-                scrollToTop();
-              }}
-              value={wordToFind}
-              placeholder="Cari kata atau frasa"
-              editable={true}
-              onSubmitEditing={onSubmitSearching}
-              color="black"
-              placeholderTextColor="gray"
-              onFocus={() => {
-                setInputFocused(true);
-              }}
-              onBlur={() => setInputFocused(false)}
-              Styles={{color: 'black', fontFamily: fonts.primary[400]}}
-            />
-          </View>
-          {wordToFind !== '' && (
-            <TouchableOpacity onPress={() => setWordToFind('')}>
-              <IconClose width={20} />
-            </TouchableOpacity>
-          )}
-        </View>
+        <Text style={styles.headerTitle}>Kamus Bahasa Indonesia</Text>
+        <Text style={styles.headerDesc}>
+          Fasilitas pencarian definisi kata atau frasa berdasarkan KBBI VI 😁.
+        </Text>
       </View>
       <View style={styles.alphabetContainer}>
         <FlatList
@@ -276,11 +243,13 @@ export default function HomeScreen({navigation}) {
           updateCellsBatchingPeriod={50}
           keyboardShouldPersistTaps="handled"
           windowSize={10}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={renderHeader()}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={renderEmpty}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -290,7 +259,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.page,
   },
   headerContainer: {
-    backgroundColor: '#c0392b',
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 20,
   },
@@ -311,6 +280,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 10,
     justifyContent: 'space-between',
+    marginTop: 30,
+    borderWidth: 2,
+    borderColor: colors.primary,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -318,12 +290,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   input: {
-    height: 50,
+    height: 40,
     flex: 1,
-    color: 'black',
+    textDecorationLine: 'none',
+    color: colors.black,
+    fontFamily: fonts.primary[600],
+  },
+  clearText: {
+    color: 'grey',
+    fontSize: 13,
   },
   alphabetContainer: {
-    backgroundColor: '#c0392b',
+    backgroundColor: colors.primary,
     paddingBottom: 18,
   },
   alphabetList: {
@@ -337,7 +315,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: 'white',
+    borderColor: colors.white,
     borderWidth: 2,
   },
   letterText: {
@@ -345,13 +323,13 @@ const styles = StyleSheet.create({
   },
   wordListContainer: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.white,
     paddingHorizontal: 20,
     paddingVertical: 0,
   },
   wordItemWrapper: {
     borderBottomWidth: 1,
-    borderBottomColor: 'grey',
+    borderBottomColor: colors.line,
     borderStyle: 'dashed',
     paddingBottom: 3,
   },
@@ -360,42 +338,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   wordText: {
-    color: 'black',
+    color: colors.black,
     fontSize: 18,
     fontFamily: fonts.primary[600],
   },
-  content: {
-    backgroundColor: colors.white,
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-  },
-  subContent: {
-    backgroundColor: colors.white,
-    paddingHorizontal: 16,
-    paddingVertical: 5,
-  },
-  rowContainer: {
-    flexDirection: 'row',
-  },
-  descriptionContainer: {
-    paddingHorizontal: 10,
-  },
-  lemaTitle: {
-    fontSize: 20,
-    fontFamily: fonts.primary[600],
-    color: colors.text.primary,
-  },
-  label: {
-    fontSize: 14,
-    fontFamily: fonts.primary[400],
-    color: colors.text.subTitle,
-    fontStyle: 'italic',
-  },
-  desc: {
-    fontSize: 14,
-    fontFamily: fonts.primary[600],
-    color: colors.text.primary,
-  },
+
   footerContainer: {
     paddingVertical: 32,
     alignItems: 'center',
@@ -410,5 +357,17 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#888',
+  },
+  selectedButton: {
+    backgroundColor: 'white',
+  },
+  unselectedButton: {
+    backgroundColor: colors.primary,
+  },
+  selectedText: {
+    color: colors.primary,
+  },
+  unselectedText: {
+    color: 'white',
   },
 });
