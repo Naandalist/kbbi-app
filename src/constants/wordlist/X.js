@@ -1,5 +1,5 @@
 export const X = [
-  // "Xin Nian Kuai Le (新年快乐）",
+  // 'Xin Nian Kuai Le (新年快乐）',
   'x',
   'xantat',
   'xantelesma',
