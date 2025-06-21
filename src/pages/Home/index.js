@@ -19,6 +19,7 @@ import {
 } from '../../utils';
 import {Gap} from '../../components';
 import {wordlist} from '../../constants/wordlist';
+import { useDebounce } from '../../hooks';
 
 const ITEM_HEIGHT = 40;
 const ITEMS_PER_PAGE = 50;
@@ -62,19 +63,21 @@ export default function HomeScreen({navigation}) {
   const [loading, setLoading] = useState(false);
   const [endReached, setEndReached] = useState(false);
 
+  const debouncedWordToFind = useDebounce(wordToFind, 400);
+
   // Filter wordlist based on selected letter
   useEffect(() => {
     let selectedWrodlist = wordlist[selectedFilter] || [];
 
     // Filter words based on the input
-    if (wordToFind.length > 1) {
-      selectedWrodlist = fuzzySearch(selectedWrodlist, wordToFind);
+    if (debouncedWordToFind.length > 1) {
+      selectedWrodlist = fuzzySearch(selectedWrodlist, debouncedWordToFind);
     }
 
     setFilteredList(selectedWrodlist);
     setDisplayedData(selectedWrodlist.slice(0, ITEMS_PER_PAGE));
     setEndReached(false);
-  }, [selectedFilter, wordToFind]);
+  }, [selectedFilter, debouncedWordToFind]);
 
   const onLetterPress = useCallback(letter => {
     setSelectedFilter(letter);
