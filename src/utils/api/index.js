@@ -25,7 +25,7 @@ const service = async ({url, method, data}) => {
 export const getData = async (letter, word) => {
   try {
     return await service({
-      url: `${process.env.API_URL}/${letter}/${word}.json`,
+      url: `${process.env.API_URL}/${letter.toUpperCase()}/${word}.json`,
       method: 'GET',
       data: null,
     });
