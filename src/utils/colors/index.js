@@ -21,7 +21,7 @@ const options = {
 };
 
 export const colors = {
-  primary: options.red2,
+  primary: options.blue1,
   secondary: options.green2,
   tertiary: options.blue1,
   white: 'white',
