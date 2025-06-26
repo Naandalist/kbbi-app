@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
-  StatusBar,
 } from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import Icon from 'react-native-vector-icons/FontAwesome';
