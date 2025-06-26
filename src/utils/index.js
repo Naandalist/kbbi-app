@@ -4,3 +4,4 @@ export * from './networkStatus';
 export * from './showMessage';
 export * from './colors';
 export * from './fonts';
+export * from './text';
