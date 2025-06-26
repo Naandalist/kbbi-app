@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
+  StatusBar,
 } from 'react-native';
+import BootSplash from 'react-native-bootsplash';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {
   colors,
@@ -19,7 +21,7 @@ import {
 } from '../../utils';
 import {Gap} from '../../components';
 import {wordlist} from '../../constants/wordlist';
-import { useDebounce } from '../../hooks';
+import {useDebounce} from '../../hooks';
 
 const ITEM_HEIGHT = 40;
 const ITEMS_PER_PAGE = 50;
@@ -56,6 +58,10 @@ const LetterButton = memo(({letter, isSelected, onPress}) => (
 ));
 
 export default function HomeScreen({navigation}) {
+  useEffect(() => {
+    BootSplash.hide({fade: true, duration: 2000});
+  }, []);
+
   const [wordToFind, setWordToFind] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('A');
   const [displayedData, setDisplayedData] = useState([]);
@@ -209,7 +215,8 @@ export default function HomeScreen({navigation}) {
   const letterKeyExtractor = useCallback(item => item, []);
 
   return (
-    <SafeAreaView style={styles.page}>
+    <SafeAreaView style={styles.page} edges={['left', 'bottom', 'right']}>
+      {/* <StatusBar barStyle="light-content" /> */}
       <View style={styles.headerContainer}>
         <Text style={styles.headerTitle}>Kamus Bahasa Indonesia</Text>
         <Text style={styles.headerDesc}>
@@ -280,8 +287,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.white,
-    paddingHorizontal: 10,
-    borderRadius: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     justifyContent: 'space-between',
     marginTop: 30,
     borderWidth: 2,
@@ -293,7 +300,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   input: {
-    height: 40,
+    height: 45,
     flex: 1,
     textDecorationLine: 'none',
     color: colors.black,
