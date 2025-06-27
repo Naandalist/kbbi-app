@@ -7,7 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  SafeAreaView,
+  StatusBar,
 } from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -21,6 +21,7 @@ import {
 import {Gap} from '../../components';
 import {wordlist} from '../../constants/wordlist';
 import {useDebounce} from '../../hooks';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 const ITEM_HEIGHT = 40;
 const ITEMS_PER_PAGE = 50;
@@ -58,7 +59,7 @@ const LetterButton = memo(({letter, isSelected, onPress}) => (
 
 export default function HomeScreen({navigation}) {
   useEffect(() => {
-    BootSplash.hide({fade: true, duration: 2000});
+    BootSplash.hide({fade: true, duration: 1000});
   }, []);
 
   const [wordToFind, setWordToFind] = useState('');
@@ -214,51 +215,55 @@ export default function HomeScreen({navigation}) {
   const letterKeyExtractor = useCallback(item => item, []);
 
   return (
-    <SafeAreaView style={styles.page} edges={['left', 'bottom', 'right']}>
-      {/* <StatusBar barStyle="light-content" /> */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>Kamus Bahasa Indonesia</Text>
-        <Text style={styles.headerDesc}>
-          Fasilitas pencarian definisi kata atau frasa berdasarkan KBBI VI 😁.
-        </Text>
-      </View>
-      <View style={styles.alphabetContainer}>
-        <FlatList
-          data={alphabetLetters}
-          renderItem={renderLetterButton}
-          keyExtractor={letterKeyExtractor}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.alphabetList}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50}
-          windowSize={5}
-          removeClippedSubviews={true}
-        />
-      </View>
+    <>
+      <StatusBar barStyle="dark-content" />
+      <SafeAreaView
+        style={styles.page}
+        edges={['top', 'left', 'bottom', 'right']}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerTitle}>Kamus Bahasa Indonesia</Text>
+          <Text style={styles.headerDesc}>
+            Fasilitas pencarian definisi kata atau frasa berdasarkan KBBI VI 😁.
+          </Text>
+        </View>
+        <View style={styles.alphabetContainer}>
+          <FlatList
+            data={alphabetLetters}
+            renderItem={renderLetterButton}
+            keyExtractor={letterKeyExtractor}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.alphabetList}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            updateCellsBatchingPeriod={50}
+            windowSize={5}
+            removeClippedSubviews={true}
+          />
+        </View>
 
-      <View style={styles.wordListContainer}>
-        <FlatList
-          data={displayedData}
-          renderItem={renderWord}
-          keyExtractor={keyExtractor}
-          onEndReached={loadMoreData}
-          onEndReachedThreshold={0.5}
-          getItemLayout={getItemLayout}
-          removeClippedSubviews={true}
-          initialNumToRender={15}
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50}
-          keyboardShouldPersistTaps="handled"
-          windowSize={10}
-          showsVerticalScrollIndicator={false}
-          ListHeaderComponent={renderHeader()}
-          ListFooterComponent={renderFooter}
-          ListEmptyComponent={renderEmpty}
-        />
-      </View>
-    </SafeAreaView>
+        <View style={styles.wordListContainer}>
+          <FlatList
+            data={displayedData}
+            renderItem={renderWord}
+            keyExtractor={keyExtractor}
+            onEndReached={loadMoreData}
+            onEndReachedThreshold={0.5}
+            getItemLayout={getItemLayout}
+            removeClippedSubviews={true}
+            initialNumToRender={15}
+            maxToRenderPerBatch={10}
+            updateCellsBatchingPeriod={50}
+            keyboardShouldPersistTaps="handled"
+            windowSize={10}
+            showsVerticalScrollIndicator={false}
+            ListHeaderComponent={renderHeader()}
+            ListFooterComponent={renderFooter}
+            ListEmptyComponent={renderEmpty}
+          />
+        </View>
+      </SafeAreaView>
+    </>
   );
 }
 
