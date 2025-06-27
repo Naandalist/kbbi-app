@@ -24,6 +24,9 @@ const service = async ({url, method, data}) => {
 
 export const getData = async (letter, word) => {
   try {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    await delay(100);
     return await service({
       url: `${process.env.API_URL}/${letter.toUpperCase()}/${word}.json`,
       method: 'GET',
