@@ -1,323 +1,303 @@
-import React, {useEffect, useState} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-} from 'react-native';
+import React, {useEffect, useCallback, useState} from 'react';
+import {FlatList, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {
   getData,
   showError,
-  fonts,
-  colors,
   removeSuperscriptDigits,
+  colors,
+  fonts,
 } from '../../utils';
 import {Gap} from '../../components';
-import Icon from 'react-native-vector-icons/Ionicons';
 import SkeletonLoader from './SkeletonLoader';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 const initialData = {
   word: '',
   authenticated: false,
-  entries: [
-    {
-      id: '',
-      nama: '',
-      nomor: '',
-      makna: [
-        {
-          nomor: '',
-          kelasKata: [
-            {
-              kode: '',
-              nama: '',
-            },
-          ],
-          definisi: '',
-          contoh: [],
-        },
-      ],
-      terkait: {},
-    },
-  ],
+  entries: [],
 };
 
-const Header = ({onPress, pressedWord}) => (
-  <View style={styles.header}>
-    <View style={styles.backButtonContainer}>
-      <TouchableOpacity onPress={onPress}>
-        <View style={styles.arrowContainer}>
-          <Icon name="close-outline" size={30} color="black" />
-        </View>
-      </TouchableOpacity>
+const BackButton = ({onPress}) => (
+  <TouchableOpacity onPress={onPress} style={styles.backButton}>
+    <Icon name="close-outline" size={30} color="black" />
+  </TouchableOpacity>
+);
+
+const InfoRow = ({label, text, tags, exponent, hasBorder}) => (
+  <View style={[styles.infoRow, hasBorder && styles.dashedBorder]}>
+    <View style={styles.rowHeader}>
+      <Text style={styles.label}>{label}</Text>
+      {exponent != null && <Text style={styles.exponent}>{exponent}</Text>}
     </View>
-  </View>
-);
-
-const CardSection = ({children}) => (
-  <View style={styles.cardSection}>
-    <View style={styles.bodySection}>{children}</View>
-  </View>
-);
-
-const InfoSection = ({label, exponent, content, hasBorder}) => (
-  <View style={[styles.infoSection, hasBorder && styles.dashedBorder]}>
-    {label && (
-      <View style={styles.wrapperLabelText}>
-        <Text style={styles.labelText}>{label}</Text>
-        <Text style={styles.exponentText}>{exponent}</Text>
-      </View>
-    )}
-    {content && typeof content === 'string' && (
-      <Text selectable style={[styles.contentText, styles.boldText]}>
-        {removeSuperscriptDigits(content)}
+    {text && (
+      <Text style={[styles.content, styles.boldText]}>
+        {removeSuperscriptDigits(text)}
       </Text>
     )}
-
-    {content && typeof content === 'object' && (
-      <View>
-        <Gap height={5} />
-        <View style={styles.labelsContainer}>
-          {content.kelasKata.map((kelas, i) => (
-            <View key={i} style={styles.labelWrapper}>
-              <Text
-                style={
-                  styles.partOfSpeechText
-                }>{`${kelas.kode} ${kelas.nama}`}</Text>
-            </View>
-          ))}
-        </View>
+    {tags && (
+      <View style={styles.tagsContainer}>
+        {tags.map((tag, i) => (
+          <View key={i} style={styles.tag}>
+            <Text style={styles.tagText}>{tag}</Text>
+          </View>
+        ))}
       </View>
     )}
   </View>
 );
+InfoRow.defaultProps = {
+  text: null,
+  tags: null,
+  exponent: null,
+  hasBorder: false,
+};
 
-const MeaningItem = ({index, exponent, description, labels, examples}) => (
-  <View style={styles.meaningContainer}>
-    <View>
-      <View style={styles.rowCenter}>
-        <Text style={styles.labelText}>definisi </Text>
-        <Text style={styles.exponentText}>{exponent}</Text>
-      </View>
-      <Text style={styles.descriptionText}>{description}</Text>
-      {examples
-        .filter(example => example.teks.length > 1)
-        .map((example, i) => (
-          <View key={i} style={styles.exampleWrapper}>
-            {example.teks && (
-              <View style={styles.exampleRow}>
-                <Text style={styles.exampleText}>contoh </Text>
-                <Icon
-                  name="arrow-forward-outline"
-                  size={13}
-                  color="black"
-                  style={styles.exampleIcon}
-                />
-                <Text style={styles.exampleText}>{`${example.teks}`}</Text>
-              </View>
-            )}
-          </View>
-        ))}
-    </View>
+const ExampleList = ({list}) => (
+  <View style={styles.exampleContainer}>
+    <Text style={styles.exampleLabel}>contoh</Text>
+    {list.map((ex, i) => (
+      <Text key={i} style={styles.exampleTextList}>
+        • {removeSuperscriptDigits(ex.teks)}
+      </Text>
+    ))}
   </View>
 );
 
-export default function Detail(props) {
-  const {route, navigation} = props;
-  const {pressedWord, selectedLetter} = route.params;
+const DefinitionItem = ({meaning, displayExponent}) => {
+  const examples = meaning.contoh.filter(ex => ex.teks?.length > 0);
+  return (
+    <View style={styles.definitionContainer}>
+      <InfoRow
+        label="definisi"
+        text={meaning.definisi}
+        exponent={displayExponent ? meaning.nomor : null}
+      />
+      {examples.length > 0 && <ExampleList list={examples} />}
+    </View>
+  );
+};
 
+const PeribahasaItem = ({list}) => (
+  <View style={styles.peribahasaContainer}>
+    <Text style={styles.peribahasaLabel}>peribahasa</Text>
+    {list.map((item, i) => (
+      <Text key={i} style={styles.peribahasaText}>
+        • {item}
+      </Text>
+    ))}
+  </View>
+);
+
+const EntryCard = ({entry, isMultiple, index}) => {
+  const exponent = isMultiple ? index + 1 : null;
+  const posTags = entry.makna[0]?.kelasKata?.map(
+    ({kode, nama}) => `${kode} ${nama}`,
+  );
+  return (
+    <View style={styles.card}>
+      {posTags?.length > 0 && (
+        <InfoRow
+          label="kelas kata"
+          tags={posTags}
+          exponent={exponent}
+          hasBorder
+        />
+      )}
+      {entry.makna.map(m => (
+        <DefinitionItem
+          key={m.nomor || m.definisi}
+          meaning={m}
+          displayExponent={entry.makna.length > 1}
+        />
+      ))}
+      {entry.terkait?.peribahasa?.length > 0 && (
+        <PeribahasaItem list={entry.terkait.peribahasa} />
+      )}
+    </View>
+  );
+};
+EntryCard.defaultProps = {
+  isMultiple: false,
+};
+
+const WordOverview = ({word, entry}) => (
+  <View style={styles.card}>
+    <InfoRow label="kata dasar" text={word} />
+    {entry.nama && entry.nama !== word && (
+      <InfoRow label="ejaan" text={entry.nama} />
+    )}
+    {entry.rootWord && <InfoRow label="akar kata" text={entry.rootWord} />}
+    {entry.terkait?.kataTurunan?.length > 0 && (
+      <InfoRow
+        label="kata turunan"
+        tags={entry.terkait.kataTurunan}
+        hasBorder
+      />
+    )}
+    {entry.terkait?.gabunganKata?.length > 0 && (
+      <InfoRow
+        label="kata gabungan"
+        tags={entry.terkait.gabunganKata}
+        hasBorder
+      />
+    )}
+  </View>
+);
+
+export default function Detail({route, navigation}) {
+  const {pressedWord, selectedLetter} = route.params;
   const [wordDetail, setWordDetail] = useState(initialData);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getData(selectedLetter, pressedWord);
-        if (response.error) {
-          showError('Kata yang dicari tidak ditemukan dalam KBBI.');
-        } else if (response.message === 'Fetch Success') {
-          setWordDetail(response.data);
-        }
-      } catch (error) {
-        showError('Terjadi kesalahan saat mengambil data dari KBBI.');
-        console.error(error);
+  const fetchWord = useCallback(async () => {
+    try {
+      const res = await getData(selectedLetter, pressedWord);
+      if (res.error) {
+        showError('Kata yang dicari tidak ditemukan.');
+      } else if (res.message === 'Fetch Success') {
+        setWordDetail(res.data);
       }
-    };
-
-    fetchData();
+    } catch (err) {
+      showError('Terjadi kesalahan saat mengambil data.');
+      console.error(err);
+    }
   }, [pressedWord, selectedLetter]);
 
-  if (wordDetail.authenticated === false) {
+  useEffect(() => {
+    fetchWord();
+  }, [fetchWord]);
+
+  if (!wordDetail.authenticated) {
     return (
-      <>
-        <Header pressedWord={pressedWord} onPress={() => navigation.goBack()} />
+      <SafeAreaView style={styles.container}>
+        <BackButton onPress={() => navigation.goBack()} />
+        <Gap height={10} />
         <SkeletonLoader />
-      </>
+      </SafeAreaView>
     );
   }
 
-  return (
-    <SafeAreaView style={styles.page}>
-      <Header pressedWord={pressedWord} onPress={() => navigation.goBack()} />
-      <ScrollView>
-        <CardSection>
-          <InfoSection label="kata dasar" content={wordDetail.word} />
-          {wordDetail.entries[0]?.nama !== wordDetail.word && (
-            <InfoSection
-              label="ejaan"
-              content={wordDetail.entries[0]?.nama || ''}
-            />
-          )}
-          {wordDetail.entries[0]?.rootWord && (
-            <InfoSection
-              label="akar kata"
-              content={wordDetail.entries[0]?.rootWord || ''}
-            />
-          )}
-        </CardSection>
-        {wordDetail.entries.length > 0 ? (
-          wordDetail.entries.map((entry, idx) => (
-            <CardSection key={entry.id || idx}>
-              {entry.makna[0]?.kelasKata?.length > 0 && (
-                <InfoSection
-                  label="kelas kata"
-                  exponent={wordDetail.entries.length > 1 ? idx + 1 : null}
-                  content={entry.makna[0]}
-                  hasBorder
-                />
-              )}
+  const {word, entries} = wordDetail;
+  const multiple = entries.length > 1;
 
-              {entry.makna.map((maknaObj, i) => (
-                <MeaningItem
-                  key={maknaObj.nomor || i}
-                  index={maknaObj.nomor || i + 1}
-                  exponent={wordDetail.entries.length > 1 ? idx + 1 : null}
-                  labels={maknaObj.kelasKata}
-                  description={maknaObj.definisi}
-                  examples={maknaObj.contoh}
-                />
-              ))}
-            </CardSection>
-          ))
-        ) : (
-          <Text style={styles.emptyText}>Tidak ada hasil ditemukan.</Text>
+  const renderHeader = () => (
+    <>
+      <BackButton onPress={() => navigation.goBack()} />
+      <WordOverview word={word} entry={entries[0]} />
+    </>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={entries}
+        keyExtractor={(item, idx) => item.id || idx.toString()}
+        ListHeaderComponent={renderHeader}
+        renderItem={({item, index}) => (
+          <EntryCard entry={item} isMultiple={multiple} index={index} />
         )}
-      </ScrollView>
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Tidak ada hasil ditemukan.</Text>
+        }
+        contentContainerStyle={styles.listContent}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  page: {
+  container: {
     flex: 1,
     backgroundColor: colors.page,
   },
-  header: {
+  backButton: {
+    padding: 10,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
     borderBottomColor: colors.page,
   },
-  backButtonContainer: {
-    paddingVertical: 10,
+  card: {
     backgroundColor: colors.white,
-  },
-  arrowContainer: {
-    marginTop: 20,
-    marginBottom: 10,
-    marginLeft: 10,
-    flexDirection: 'row',
-  },
-  backText: {
-    color: 'black',
-    fontFamily: fonts.primary[600],
-    fontSize: 18,
-    marginLeft: 16,
-  },
-  cardSection: {
-    backgroundColor: colors.white,
-    paddingBottom: 10,
+    padding: 16,
     marginTop: 10,
   },
-  bodySection: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
+  infoRow: {
+    marginBottom: 10,
   },
   dashedBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: 'grey',
     borderStyle: 'dashed',
+    borderBottomColor: 'grey',
     paddingBottom: 10,
   },
-  infoSection: {
-    marginBottom: 10,
-  },
-  wrapperLabelText: {
+  rowHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  labelText: {
+  label: {
     color: 'rgba(30, 39, 46,0.7)',
     fontFamily: fonts.primary[600],
   },
-  exponentText: {
+  exponent: {
     fontSize: 10,
     lineHeight: 18,
     color: 'rgba(30, 39, 46,0.7)',
     fontFamily: fonts.primary[600],
+    marginLeft: 4,
   },
-  contentText: {
+  content: {
     color: 'black',
     fontFamily: fonts.primary[700],
+    marginTop: 4,
   },
   boldText: {
     fontFamily: fonts.primary[700],
   },
-  labelsContainer: {
+  tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    alignContent: 'flex-start',
     marginTop: 5,
   },
-  labelWrapper: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
+  tag: {
     backgroundColor: '#e4eff9',
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    overflow: 'hidden',
     marginRight: 8,
     marginBottom: 6,
   },
-  partOfSpeechText: {
+  tagText: {
     fontFamily: fonts.primary_italic[400],
     color: 'rgba(30, 39, 46,0.7)',
   },
-  meaningContainer: {
-    flexDirection: 'row',
-    paddingBottom: 10,
+  definitionContainer: {
+    marginTop: 10,
   },
-  descriptionText: {
-    fontFamily: fonts.primary[700],
-    color: 'black',
+  exampleContainer: {
+    marginBottom: 20,
   },
-  exampleWrapper: {
-    marginTop: 8,
+  exampleLabel: {
+    fontFamily: fonts.primary[600],
+    color: 'rgba(30, 39, 46,0.7)',
   },
-  exampleRow: {
-    flexDirection: 'row',
-    alignItems: 'start',
-  },
-  exampleIcon: {
-    top: 4,
-    marginRight: 5,
-  },
-  exampleText: {
+  exampleTextList: {
+    marginTop: 4,
+    marginLeft: 8,
     fontFamily: fonts.primary[400],
     color: 'black',
-    maxWidth: '85%',
+  },
+  peribahasaContainer: {
+    marginTop: 10,
+  },
+  peribahasaLabel: {
+    fontFamily: fonts.primary[600],
+    color: 'rgba(30, 39, 46,0.7)',
+  },
+  peribahasaText: {
+    marginTop: 4,
+    fontFamily: fonts.primary[400],
+    color: 'black',
+    marginLeft: 8,
   },
   emptyText: {
     color: 'grey',
@@ -325,8 +305,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontFamily: fonts.primary[600],
   },
-  rowCenter: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  listContent: {
+    paddingBottom: 20,
   },
 });
