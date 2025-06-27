@@ -1,4 +1,3 @@
-import React from 'react';
 import {HomeScreen, DetailScreen} from '../pages';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
