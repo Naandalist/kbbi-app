@@ -82,8 +82,8 @@ android {
         applicationId "com.naandalist.kamus_kbbi"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 7
-        versionName "4.0.0"
+        versionCode 8
+        versionName "5.0.0"
     }
     signingConfigs {
         debug {

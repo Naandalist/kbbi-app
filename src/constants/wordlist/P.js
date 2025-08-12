@@ -626,6 +626,7 @@ export const P = [
   'palugada',
   'paluh',
   'paluk',
+  'palum',
   'palumara',
   'palun',
   'palung angin baratan',
