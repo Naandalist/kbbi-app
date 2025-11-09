@@ -8,8 +8,8 @@ import {
   removeSuperscriptDigits,
   colors,
   fonts,
-} from '@/utils';
-import {Gap} from '@/components';
+} from '../../utils';
+import {Gap} from '../../components';
 import SkeletonLoader from './SkeletonLoader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 

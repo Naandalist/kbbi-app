@@ -1,4 +1,4 @@
-import {HomeScreen, DetailScreen} from '@/pages';
+import {HomeScreen, DetailScreen} from '../pages';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
