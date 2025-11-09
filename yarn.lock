@@ -3917,14 +3917,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.10.0":
-  version: 1.10.0
-  resolution: "axios@npm:1.10.0"
+"axios@npm:^1.13.2":
+  version: 1.13.2
+  resolution: "axios@npm:1.13.2"
   dependencies:
     follow-redirects: "npm:^1.15.6"
-    form-data: "npm:^4.0.0"
+    form-data: "npm:^4.0.4"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10c0/2239cb269cc789eac22f5d1aabd58e1a83f8f364c92c2caa97b6f5cbb4ab2903d2e557d9dc670b5813e9bcdebfb149e783fb8ab3e45098635cd2f559b06bd5d8
+  checksum: 10c0/e8a42e37e5568ae9c7a28c348db0e8cf3e43d06fcbef73f0048669edfe4f71219664da7b6cc991b0c0f01c28a48f037c515263cb79be1f1ae8ff034cd813867b
   languageName: node
   linkType: hard
 
@@ -6004,15 +6004,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"form-data@npm:^4.0.0":
-  version: 4.0.2
-  resolution: "form-data@npm:4.0.2"
+"form-data@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "form-data@npm:4.0.4"
   dependencies:
     asynckit: "npm:^0.4.0"
     combined-stream: "npm:^1.0.8"
     es-set-tostringtag: "npm:^2.1.0"
+    hasown: "npm:^2.0.2"
     mime-types: "npm:^2.1.12"
-  checksum: 10c0/e534b0cf025c831a0929bf4b9bbe1a9a6b03e273a8161f9947286b9b13bf8fb279c6944aae0070c4c311100c6d6dbb815cd955dc217728caf73fad8dc5b8ee9c
+  checksum: 10c0/373525a9a034b9d57073e55eab79e501a714ffac02e7a9b01be1c820780652b16e4101819785e1e18f8d98f0aee866cc654d660a435c378e16a72f2e7cac9695
   languageName: node
   linkType: hard
 
@@ -7060,6 +7061,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jail-monkey@npm:^2.8.4":
+  version: 2.8.4
+  resolution: "jail-monkey@npm:2.8.4"
+  checksum: 10c0/105bb7a54c00475fad0e3137546237ee7ab241ce1787307c8658546929b76a84bc774331c23a5a9c1e24c1f269a9e6ea81a8e7964f7ade7fb9911c8dd9e5ebab
+  languageName: node
+  linkType: hard
+
 "jest-changed-files@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-changed-files@npm:29.7.0"
@@ -7676,15 +7684,17 @@ __metadata:
     "@types/react": "npm:^19.1.0"
     "@types/react-native-vector-icons": "npm:^6.4.18"
     "@types/react-test-renderer": "npm:^19.1.0"
-    axios: "npm:^1.10.0"
+    axios: "npm:^1.13.2"
     eslint: "npm:^8.19.0"
     eslint-plugin-react-native: "npm:^5.0.0"
+    jail-monkey: "npm:^2.8.4"
     jest: "npm:^29.6.3"
     prettier: "npm:2.8.8"
     react: "npm:19.1.0"
     react-native: "npm:0.80.0"
-    react-native-bootsplash: "npm:^6.3.9"
+    react-native-bootsplash: "npm:^6.3.11"
     react-native-dotenv: "npm:^3.4.11"
+    react-native-exit-app: "npm:^2.0.0"
     react-native-flash-message: "npm:^0.4.2"
     react-native-gesture-handler: "npm:^2.26.0"
     react-native-linear-gradient: "npm:^2.8.3"
@@ -9230,9 +9240,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-bootsplash@npm:^6.3.9":
-  version: 6.3.9
-  resolution: "react-native-bootsplash@npm:6.3.9"
+"react-native-bootsplash@npm:^6.3.11":
+  version: 6.3.11
+  resolution: "react-native-bootsplash@npm:6.3.11"
   dependencies:
     "@expo/config-plugins": "npm:^9.0.0 || ^10.0.0"
     "@react-native-community/cli-config-android": "npm:^18.0.0"
@@ -9244,7 +9254,7 @@ __metadata:
     node-html-parser: "npm:^7.0.1"
     picocolors: "npm:^1.1.1"
     prettier: "npm:^3.5.3"
-    react-native-is-edge-to-edge: "npm:^1.1.7"
+    react-native-is-edge-to-edge: "npm:^1.2.1"
     sharp: "npm:^0.32.6"
     ts-dedent: "npm:^2.2.0"
     xml-formatter: "npm:^3.6.5"
@@ -9253,7 +9263,7 @@ __metadata:
     react-native: "*"
   bin:
     react-native-bootsplash: cli.js
-  checksum: 10c0/7f271103e14ebfd9a3b9e7674ff2ea75971b371c0b3fa5712761186d8f78849b659009a11340daa3593d8d1f45d59f1d6255381f284e8a4b7aad6d3f66437e2d
+  checksum: 10c0/0453fc66e6345f673d3caa6cfea1cd06e642b75f4729dbf819aebb485447d228607af4fe604258966d9ee58662f2d139b030dfdd77f6b95406efab0b658d9480
   languageName: node
   linkType: hard
 
@@ -9265,6 +9275,13 @@ __metadata:
   peerDependencies:
     "@babel/runtime": ^7.20.6
   checksum: 10c0/9ed4a37fb59030706d17a1cc49d05af9d8fc57dcb2ef97e122b844f3ab6f6331ebc089afac559fe5bddf37806aa282b4118005f1b27aae5e37fdc3fc8bd7625c
+  languageName: node
+  linkType: hard
+
+"react-native-exit-app@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "react-native-exit-app@npm:2.0.0"
+  checksum: 10c0/301ce787e2a905cbfb8f3e19200c316c4c18274ccfea89c3b4f11cdeda3c88c3aa99cb4b16d360c0b7666e3275e75a074076234dc2f6c1ef937440f94ef07054
   languageName: node
   linkType: hard
 

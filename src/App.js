@@ -8,7 +8,8 @@ import FlashMessage from 'react-native-flash-message';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {StyleSheet} from 'react-native';
 import Router from './router';
-import {useRef} from 'react';
+import {useRef, useEffect} from 'react';
+import JailMonkey from 'jail-monkey';
 
 export default function App() {
   return <MainApp />;
@@ -20,6 +21,17 @@ function MainApp() {
 
   useNetworkActivityDevTools();
   usePerformanceMonitorDevTools();
+
+  useEffect(() => {
+    if (__DEV__) {
+      const isJailBroken = JailMonkey.isJailBroken();
+      const isDebuggedMode = JailMonkey.isDebuggedMode();
+
+      if (isJailBroken || isDebuggedMode) {
+        navigationRef.current?.navigate('SecurityWarning');
+      }
+    }
+  }, []);
 
   return (
     <GestureHandlerRootView style={styles.container}>
