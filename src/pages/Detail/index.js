@@ -1,5 +1,6 @@
 import React, {useEffect, useCallback, useState} from 'react';
-import {FlatList, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {FlashList} from '@shopify/flash-list';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
   getData,
@@ -189,7 +190,7 @@ export default function Detail({route, navigation}) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
+      <FlashList
         data={entries}
         keyExtractor={(item, idx) => item.id || idx.toString()}
         ListHeaderComponent={renderHeader}
@@ -200,6 +201,7 @@ export default function Detail({route, navigation}) {
           <Text style={styles.emptyText}>Tidak ada hasil ditemukan.</Text>
         }
         contentContainerStyle={styles.listContent}
+        estimatedItemSize={200}
       />
     </SafeAreaView>
   );

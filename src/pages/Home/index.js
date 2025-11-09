@@ -4,11 +4,11 @@ import {
   Text,
   View,
   TextInput,
-  FlatList,
   TouchableOpacity,
   ActivityIndicator,
   StatusBar,
 } from 'react-native';
+import {FlashList} from '@shopify/flash-list';
 import BootSplash from 'react-native-bootsplash';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {
@@ -99,29 +99,18 @@ export default function HomeScreen({navigation}) {
 
     setLoading(true);
 
-    // Simulate network delay for smoother UX
-    setTimeout(() => {
-      const newData = filteredList.slice(
-        displayedData.length,
-        displayedData.length + ITEMS_PER_PAGE,
-      );
+    // Load more data immediately without artificial delay
+    const newData = filteredList.slice(
+      displayedData.length,
+      displayedData.length + ITEMS_PER_PAGE,
+    );
 
-      setDisplayedData(prevData => [...prevData, ...newData]);
-      setLoading(false);
-      setEndReached(
-        displayedData.length + newData.length >= filteredList.length,
-      );
-    }, 1000);
+    setDisplayedData(prevData => [...prevData, ...newData]);
+    setLoading(false);
+    setEndReached(
+      displayedData.length + newData.length >= filteredList.length,
+    );
   }, [displayedData.length, filteredList, loading]);
-
-  const getItemLayout = useCallback(
-    (_, index) => ({
-      length: ITEM_HEIGHT,
-      offset: ITEM_HEIGHT * index,
-      index,
-    }),
-    [],
-  );
 
   const renderLetterButton = useCallback(
     ({item}) => (
@@ -227,35 +216,26 @@ export default function HomeScreen({navigation}) {
           </Text>
         </View>
         <View style={styles.alphabetContainer}>
-          <FlatList
+          <FlashList
             data={alphabetLetters}
             renderItem={renderLetterButton}
             keyExtractor={letterKeyExtractor}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.alphabetList}
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
-            updateCellsBatchingPeriod={50}
-            windowSize={5}
-            removeClippedSubviews={true}
+            estimatedItemSize={50}
           />
         </View>
 
         <View style={styles.wordListContainer}>
-          <FlatList
+          <FlashList
             data={displayedData}
             renderItem={renderWord}
             keyExtractor={keyExtractor}
             onEndReached={loadMoreData}
             onEndReachedThreshold={0.5}
-            getItemLayout={getItemLayout}
-            removeClippedSubviews={true}
-            initialNumToRender={15}
-            maxToRenderPerBatch={10}
-            updateCellsBatchingPeriod={50}
+            estimatedItemSize={ITEM_HEIGHT}
             keyboardShouldPersistTaps="handled"
-            windowSize={10}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={renderHeader()}
             ListFooterComponent={renderFooter}
