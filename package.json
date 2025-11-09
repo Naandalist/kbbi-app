@@ -10,7 +10,8 @@
     "test": "jest",
     "clean": "cd android && ./gradlew clean",
     "test-release": "yarn android --mode release",
-    "build-aab": "npx react-native build-android --mode=release"
+    "build-aab": "npx react-native build-android --mode=release",
+    "build-apk": "cd android && ./gradlew assembleRelease"
   },
   "author": "Naandalist",
   "dependencies": {
