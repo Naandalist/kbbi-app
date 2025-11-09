@@ -17,10 +17,10 @@ import {
   fuzzySearch,
   networkStatus,
   showError,
-} from '../../utils';
-import {Gap} from '../../components';
-import {wordlist} from '../../constants/wordlist';
-import {useDebounce} from '../../hooks';
+} from '@/utils';
+import {Gap} from '@/components';
+import {wordlist} from '@/constants/wordlist';
+import {useDebounce} from '@/hooks';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 const ITEM_HEIGHT = 40;
