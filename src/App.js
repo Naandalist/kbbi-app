@@ -23,7 +23,7 @@ function MainApp() {
   usePerformanceMonitorDevTools();
 
   useEffect(() => {
-    if (__DEV__) {
+    if (!__DEV__) {
       const isJailBroken = JailMonkey.isJailBroken();
       const isDebuggedMode = JailMonkey.isDebuggedMode();
 
