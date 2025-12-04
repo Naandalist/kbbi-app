@@ -1,6 +1,6 @@
 {
   "name": "kamus_kbbi",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "private": true,
   "license": "CC-BY-NC-4.0",
   "scripts": {
@@ -23,7 +23,6 @@
     "@react-navigation/native-stack": "6.9.26",
     "@shopify/flash-list": "^2.0.1",
     "axios": "^1.13.2",
-    "jail-monkey": "^2.8.4",
     "react": "19.1.0",
     "react-native": "0.80.0",
     "react-native-bootsplash": "^6.3.11",

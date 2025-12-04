@@ -7061,13 +7061,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jail-monkey@npm:^2.8.4":
-  version: 2.8.4
-  resolution: "jail-monkey@npm:2.8.4"
-  checksum: 10c0/105bb7a54c00475fad0e3137546237ee7ab241ce1787307c8658546929b76a84bc774331c23a5a9c1e24c1f269a9e6ea81a8e7964f7ade7fb9911c8dd9e5ebab
-  languageName: node
-  linkType: hard
-
 "jest-changed-files@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-changed-files@npm:29.7.0"
@@ -7687,7 +7680,6 @@ __metadata:
     axios: "npm:^1.13.2"
     eslint: "npm:^8.19.0"
     eslint-plugin-react-native: "npm:^5.0.0"
-    jail-monkey: "npm:^2.8.4"
     jest: "npm:^29.6.3"
     prettier: "npm:2.8.8"
     react: "npm:19.1.0"
