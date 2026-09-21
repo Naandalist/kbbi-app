@@ -74,7 +74,7 @@ export default function Detail({route, navigation}) {
   // =============================================================================
   // LOADING STATE
   // =============================================================================
-  if (!wordDetail.authenticated) {
+  if (wordDetail.entries.length === 0) {
     return (
       <View style={styles.outerContainer}>
         <StatusBar barStyle="dark-content" backgroundColor={colors.white} />

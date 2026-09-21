@@ -1,6 +1,5 @@
 export const initialData = {
   word: '',
-  authenticated: false,
   entries: [],
 };
 
