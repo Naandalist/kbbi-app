@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import IoniconsIcon from 'react-native-vector-icons/Ionicons';
 import {MAX_PERIBAHASA_ITEMS} from '../constants';
 import {sharedStyles} from '../styles/shared.styles';
-import {fonts} from '../../../utils';
+import {colors, fonts} from '../../../utils';
 import {FONT_SIZES} from '../../../constants';
 
 const PeribahasaWithMeaningCard = ({entry}) => {
@@ -84,9 +84,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   peribahasaCard: {
-    backgroundColor: '#fefbf0',
+    backgroundColor: colors.border,
     borderLeftWidth: 4,
-    borderLeftColor: '#f4c842',
+    borderLeftColor: colors.line,
     borderRadius: 4,
     padding: 12,
     marginLeft: 8,

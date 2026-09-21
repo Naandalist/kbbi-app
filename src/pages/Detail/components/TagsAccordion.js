@@ -4,7 +4,7 @@ import IoniconsIcon from 'react-native-vector-icons/Ionicons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {MAX_ACCORDION_ITEMS} from '../constants';
 import {sharedStyles} from '../styles/shared.styles';
-import {fonts} from '../../../utils';
+import {colors, fonts} from '../../../utils';
 import {FONT_SIZES} from '../../../constants';
 
 const TagsAccordion = ({
@@ -156,9 +156,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     minHeight: 24, // Ensure consistent height even for empty slots
   },
-  // Green theme for kata turunan
   greenTag: {
-    backgroundColor: '#dcfce7',
+    backgroundColor: colors.border,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -167,7 +166,7 @@ const styles = StyleSheet.create({
   },
   greenTagText: {
     fontFamily: fonts.primary[600],
-    color: '#16a34a',
+    color: colors.black1,
     fontSize: FONT_SIZES.M,
   },
   greenColumnTag: {
@@ -180,7 +179,7 @@ const styles = StyleSheet.create({
     minHeight: 24,
   },
   orangeTag: {
-    backgroundColor: '#fed7aa',
+    backgroundColor: colors.border,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -189,11 +188,11 @@ const styles = StyleSheet.create({
   },
   orangeTagText: {
     fontFamily: fonts.primary[600],
-    color: '#a44e04ff',
+    color: colors.black,
     fontSize: FONT_SIZES.M,
   },
   orangeColumnTag: {
-    backgroundColor: '#fed7aa',
+    backgroundColor: colors.border,
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 8,

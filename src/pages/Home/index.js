@@ -175,11 +175,11 @@ export default function HomeScreen({navigation}) {
             placeholderTextColor="gray"
           />
         </View>
-        {wordToFind !== '' && (
+        {/* {wordToFind !== '' && (
           <TouchableOpacity onPress={() => setWordToFind('')}>
-            <Text style={styles.clearText}>Clear</Text>
+            <Icon name="close-circle" size={18} color={colors.line} />
           </TouchableOpacity>
-        )}
+        )} */}
       </View>
     );
   };
@@ -214,11 +214,10 @@ export default function HomeScreen({navigation}) {
       <SafeAreaView style={styles.page} edges={['left', 'bottom', 'right']}>
         <View style={styles.safeAreaTop}>
           <View style={[styles.headerContainer, {paddingTop: insets.top + 20}]}>
-            <Text style={styles.headerTitle}>Kamus Bahasa Indonesia</Text>
-            <Text style={styles.headerDesc}>
-              Aplikasi pencarian definisi kata atau frasa berdasarkan KBBI VI
-              😁.
-            </Text>
+            <Text style={styles.headerTitle}>Kamus KBBI VI</Text>
+            {/* <Text style={styles.headerDesc}>
+              Telusuri daftar kata sesuai abjad dengan memilih huruf pertamanya.
+            </Text> */}
           </View>
           <View style={styles.alphabetContainer}>
             <FlashList
@@ -268,14 +267,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerTitle: {
-    fontFamily: fonts.differ.normal,
+    fontFamily: fonts.feather[700],
     fontSize: FONT_SIZES['3XL'],
     color: colors.white,
   },
   headerDesc: {
-    fontFamily: fonts.primary[700],
+    fontFamily: fonts.din[400],
     color: colors.white,
-    fontSize: FONT_SIZES.L,
+    fontSize: FONT_SIZES.M,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -283,13 +282,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingHorizontal: 16,
     borderRadius: 2,
+    borderWidth: 1,
+    borderColor: colors.white,
     justifyContent: 'space-between',
     marginHorizontal: 20,
-    marginTop: 20,
+    borderRadius: 10,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderStyle: 'dotted',
+
   },
   inputContainer: {
     flexDirection: 'row',
@@ -316,7 +315,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   searchFormContainer: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
     marginBottom: 8,
   },
   letterButton: {
@@ -331,7 +330,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   letterText: {
-    fontFamily: fonts.differ.normal,
+    fontFamily: fonts.din[700],
   },
   wordListContainer: {
     flex: 1,
@@ -351,8 +350,8 @@ const styles = StyleSheet.create({
   },
   wordText: {
     color: colors.black,
-    fontSize: FONT_SIZES.XL,
-    fontFamily: fonts.primary[600],
+    fontSize: FONT_SIZES.L,
+    fontFamily: fonts.primary[400],
   },
 
   footerContainer: {

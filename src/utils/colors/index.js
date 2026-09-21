@@ -2,6 +2,7 @@ const options = {
   blue1: '#39afd6',
   blue2: '#e4eff9',
   blue3: '#74b9ff',
+  blue4: '#1cb0f6',
   green1: '#9db506',
   green2: '#667243',
   green3: '#2ecc71',
@@ -21,7 +22,7 @@ const options = {
 };
 
 export const colors = {
-  primary: options.blue1,
+  primary: options.blue4,
   secondary: options.green2,
   tertiary: options.blue1,
   white: 'white',

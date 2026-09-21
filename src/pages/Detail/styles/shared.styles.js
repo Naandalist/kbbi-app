@@ -53,7 +53,7 @@ export const sharedStyles = StyleSheet.create({
     marginTop: 5,
   },
   tag: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: colors.border,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -62,7 +62,7 @@ export const sharedStyles = StyleSheet.create({
   },
   tagText: {
     fontFamily: fonts.primary[600],
-    color: '#2563eb',
+    color: colors.black,
     fontSize: FONT_SIZES.M,
   },
   expandButtonContainer: {

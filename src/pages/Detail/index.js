@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
   },
   topSafeArea: {
     backgroundColor: colors.white,
+    paddingTop: 20,
   },
   container: {
     flex: 1,

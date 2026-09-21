@@ -4,7 +4,7 @@ import BottomSheet, {
   BottomSheetView,
   BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
-import {fonts} from '../../../utils';
+import {colors, fonts} from '../../../utils';
 import {FONT_SIZES} from '../../../constants';
 
 const KelasKataBottomSheet = forwardRef(
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: FONT_SIZES.M,
     fontFamily: fonts.primary[500],
-    color: '#3498db',
+    color: colors.black,
     textTransform: 'uppercase',
   },
 });

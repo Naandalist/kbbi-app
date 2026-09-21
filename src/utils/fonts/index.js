@@ -25,4 +25,15 @@ export const fonts = {
   differ: {
     normal: 'Calistoga-Regular',
   },
+  din: {
+    300: 'din-round-300',
+    400: 'din-round-400',
+    500: 'din-round-500',
+    700: 'din-round-700',
+    normal: 'din-round-400',
+  },
+  feather: {
+    700: 'feather-700',
+    normal: 'feather-700',
+  },
 };
