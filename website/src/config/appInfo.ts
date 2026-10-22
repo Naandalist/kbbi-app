@@ -1,5 +1,4 @@
 import type { AppLogo, StoreLinks } from "./types";
-import kbbiIcon from "../assets/kbbi-icon.webp";
 
 export const appInfo = {
 	title: "Kamus KBBI VI Bahasa Indonesia",
@@ -7,7 +6,7 @@ export const appInfo = {
 		"Aplikasi yang memuat kosakata lengkap bahasa Indonesia, memungkinkan pengguna untuk dengan mudah mencari dan memahami arti kata.",
 	logo: {
 		type: "image" as AppLogo["type"],
-		src: kbbiIcon.src,
+		src: "/kbbi-icon.webp",
 	},
 	storeLinks: {
 		apple: "#",

@@ -46,7 +46,11 @@ const AppHero = ({ title, description, storeLinks, logo }: AppHeroProps) => {
 						<img
 							src={logo.src}
 							alt="App Icon"
-							className="h-40 w-40 rounded-2xl shadow-lg object-cover"
+							width={160}
+							height={160}
+							className="h-40 w-40 rounded-2xl bg-gray-100 object-cover shadow-lg"
+							decoding="async"
+							fetchPriority="high"
 						/>
 					)}
 				</div>

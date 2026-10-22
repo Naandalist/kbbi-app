@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { memo, useCallback, useEffect, useState } from "react";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
-import type { LightboxProps } from "config";
-import { areImagesEqual } from "config";
+import type { LightboxProps } from "config/types";
+import { areImagesEqual } from "config/types";
 
 declare global {
 	interface Window {
@@ -81,7 +81,10 @@ const Lightbox = ({ images }: LightboxProps) => {
 					<img
 						src={currentImages[currentIndex]}
 						alt={`Screenshot ${currentIndex + 1}`}
-						className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl border border-white/10"
+						width={1080}
+						height={1920}
+						className="max-h-[90vh] max-w-[90vw] rounded-xl border border-white/10 bg-black object-contain"
+						decoding="async"
 					/>
 
 					<button
