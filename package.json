@@ -11,7 +11,7 @@
     "test": "jest",
     "clean": "cd android && ./gradlew clean",
     "reset": "rm -rf android/build && rm -rf android/.gradle && rm -rf node_modules/.cache",
-    "test-release": "yarn android --mode release",
+    "test-release": "npm run android -- --mode release",
     "build-aab": "npx react-native build-android --mode=release",
     "build-apk": "cd android && ./gradlew assembleRelease"
   },
@@ -67,6 +67,5 @@
   },
   "engines": {
     "node": ">=18"
-  },
-  "packageManager": "yarn@4.11.0"
+  }
 }

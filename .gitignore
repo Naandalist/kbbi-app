@@ -67,13 +67,9 @@ yarn-error.log
 # testing
 /coverage
 
-# Yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+# Yarn leftovers (this repo uses npm)
+.yarn/
+.pnp.*
 
 .env
 
