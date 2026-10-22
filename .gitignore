@@ -75,3 +75,7 @@ yarn-error.log
 
 # Graphify
 graphify-out/
+
+# Astro landing
+website/dist/
+website/.astro/

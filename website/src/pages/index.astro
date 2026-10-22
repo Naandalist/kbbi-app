@@ -1,0 +1,81 @@
+---
+import AppHero from "@components/sections/AppHero";
+import FAQ from "@components/sections/FAQ";
+import Features from "@components/sections/Features";
+import Screenshots from "@components/sections/Screenshots";
+import SocialLinks from "@components/sections/SocialLinks";
+import Lightbox from "@components/ui/Lightbox";
+import Layout from "@layouts/Layout.astro";
+import { siteConfig } from "../config";
+
+const {
+	title,
+	description,
+	screenshots,
+	features,
+	faqs,
+	storeLinks,
+	socialLinks,
+	logo,
+} = siteConfig;
+const seoTitle = "Kamus KBBI VI Bahasa Indonesia";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  name: "Kamus KBBI VI Bahasa Indonesia",
+  description,
+  url: Astro.site!.href,
+  image: new URL("/kbbi-icon.webp", Astro.site).href,
+  operatingSystem: "Android",
+  applicationCategory: "ReferenceApplication",
+  inLanguage: "id",
+  downloadUrl: storeLinks.google,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "IDR" },
+};
+---
+
+<Layout title={seoTitle} description={description} structuredData={structuredData}>
+  <main class="min-h-screen max-w-5xl mx-auto px-4 py-8">
+    <AppHero title={title} description={description} storeLinks={storeLinks} logo={logo} />
+    
+    <div class="mb-16">
+      <Screenshots images={screenshots} client:load />
+    </div>
+
+    <Features items={features} />
+    <FAQ items={faqs} client:visible />
+    <SocialLinks items={socialLinks} />
+  </main>
+</Layout>
+
+<Lightbox images={screenshots} client:load />
+
+<style is:global>
+  .screenshots-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  
+  .screenshots-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scroll-progress {
+    width: var(--scroll-width, 0%);
+    transition: width 0.1s ease-out;
+  }
+
+  .store-button {
+    backdrop-filter: blur(8px);
+  }
+
+  .store-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px -4px rgba(255, 255, 255, 0.05);
+  }
+
+  .store-button:active {
+    transform: translateY(0);
+  }
+</style>

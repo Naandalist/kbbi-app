@@ -1,0 +1,45 @@
+---
+import BackToTop from "@components/ui/BackToTop";
+import Breadcrumbs from "@components/ui/Breadcrumbs";
+import Layout from "@layouts/Layout.astro";
+import { siteConfig } from "../config";
+import { marked } from "marked";
+
+const termsModules = import.meta.glob("../content/terms.md", { eager: true });
+const termsContent = Object.values(termsModules)[0] as { rawContent(): string };
+const htmlContent = marked(termsContent.rawContent());
+
+const { title } = siteConfig;
+---
+
+<Layout title={`Syarat dan Ketentuan | ${title}`} description={`Ketentuan penggunaan aplikasi ${title}.`}>
+  <main class="min-h-screen max-w-3xl mx-auto px-4 py-8">
+    <Breadcrumbs 
+      items={[{ label: "Syarat dan Ketentuan" }]}
+    />
+    
+    <div class="prose prose-sm sm:prose-base prose-slate max-w-none">
+      <div set:html={htmlContent} />
+    </div>
+  </main>
+  
+  <BackToTop client:load />
+</Layout>
+
+<style is:global>
+  /* Light mode styles */
+  .prose-slate {
+    --tw-prose-headings: theme(colors.slate.900);
+    --tw-prose-links: theme(colors.blue.600);
+    --tw-prose-bold: theme(colors.slate.900);
+    --tw-prose-body: theme(colors.slate.700);
+  }
+  
+  .prose a {
+    text-decoration: none;
+  }
+  
+  .prose a:hover {
+    text-decoration: underline;
+  }
+</style>
