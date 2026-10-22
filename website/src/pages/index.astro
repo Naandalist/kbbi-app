@@ -1,4 +1,5 @@
 ---
+import { getImage } from "astro:assets";
 import AppHero from "@components/sections/AppHero";
 import FAQ from "@components/sections/FAQ";
 import Features from "@components/sections/Features";
@@ -7,17 +8,30 @@ import SocialLinks from "@components/sections/SocialLinks";
 import Lightbox from "@components/ui/Lightbox";
 import Layout from "@layouts/Layout.astro";
 import { siteConfig } from "../config";
+import { phoneAssets } from "../config/screenshots";
+import kbbiIcon from "../assets/kbbi-icon.webp";
 
 const {
 	title,
 	description,
-	screenshots,
 	features,
 	faqs,
 	storeLinks,
 	socialLinks,
-	logo,
 } = siteConfig;
+
+const screenshotThumbs = {
+	android: await Promise.all(
+		phoneAssets.map(async (src) => (await getImage({ src, width: 780, format: "webp", quality: 70 })).src),
+	),
+};
+const screenshotFull = {
+	android: await Promise.all(
+		phoneAssets.map(async (src) => (await getImage({ src, width: 1080, format: "webp", quality: 75 })).src),
+	),
+};
+const logoImage = await getImage({ src: kbbiIcon, width: 384, format: "webp", quality: 80 });
+const logo = { type: "image" as const, src: logoImage.src };
 const seoTitle = "Kamus KBBI VI Bahasa Indonesia";
 const structuredData = {
   "@context": "https://schema.org",
@@ -39,7 +53,7 @@ const structuredData = {
     <AppHero title={title} description={description} storeLinks={storeLinks} logo={logo} />
     
     <div class="mb-16">
-      <Screenshots images={screenshots} client:load />
+      <Screenshots images={screenshotThumbs} client:load />
     </div>
 
     <Features items={features} />
@@ -48,7 +62,7 @@ const structuredData = {
   </main>
 </Layout>
 
-<Lightbox images={screenshots} client:load />
+<Lightbox images={screenshotFull} client:load />
 
 <style is:global>
   .screenshots-scroll {

@@ -34,7 +34,6 @@ export interface AppLogo {
 export interface AppData {
 	title: string;
 	description: string;
-	screenshots: DeviceScreenshots;
 	features: Feature[];
 	faqs: FAQ[];
 	storeLinks: StoreLinks;
