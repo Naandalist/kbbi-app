@@ -1,0 +1,74 @@
+---
+import Footer from "@components/sections/Footer";
+
+export interface Props {
+  title: string;
+  description?: string;
+  showFooter?: boolean;
+  noindex?: boolean;
+  structuredData?: Record<string, unknown>;
+}
+
+const { title, description, showFooter = true, noindex = false, structuredData } = Astro.props;
+const pathname = Astro.url.pathname.replace(/\/index\.html$/, "/");
+const canonical = new URL(pathname.endsWith("/") ? pathname : `${pathname}/`, Astro.site).href;
+const imageUrl = new URL("/kbbi-icon.webp", Astro.site).href;
+---
+
+<!doctype html>
+<html lang='id'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
+
+    {!noindex && <link rel='canonical' href={canonical} />}
+    <meta name='robots' content={noindex ? "noindex, follow" : "index, follow, max-image-preview:large"} />
+    <meta name='author' content='Listiananda Apriliawan' />
+
+    <!-- Open Graph Meta Tags -->
+    <meta property='og:title' content={title} />
+    <meta property='og:type' content='website' />
+    <meta property='og:url' content={canonical} />
+    <meta
+      property='og:image'
+      content={imageUrl}
+    />
+    <meta property='og:image:alt' content='Logo aplikasi Kamus KBBI VI Bahasa Indonesia' />
+    <meta name='twitter:image:alt' content='Logo aplikasi Kamus KBBI VI Bahasa Indonesia' />
+    <meta property='og:image:type' content='image/webp' />
+    <meta property='og:site_name' content='Kamus KBBI VI Bahasa Indonesia' />
+    <meta property='og:locale' content='id_ID' />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name='twitter:card' content='summary' />
+    <meta name='twitter:title' content={title} />
+    <meta
+      name='twitter:image'
+      content={imageUrl}
+    />
+
+    {description && <meta name='description' content={description} />}
+    {description && <meta property='og:description' content={description} />}
+    {description && <meta name='twitter:description' content={description} />}
+
+    {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, "\\u003c")} />}
+
+    <meta name='theme-color' content='#ffffff' />
+    <title>{title}</title>
+    <script>
+      history.scrollRestoration = "manual";
+      window.addEventListener("load", () => {
+        window.scrollTo(0, 0);
+      });
+    </script>
+  </head>
+  <body class='bg-white font-sans text-black'>
+    <div class='mx-auto min-h-screen max-w-[800px]'>
+      <div class="px-5">
+          <slot />
+        {showFooter && <Footer />}
+      </div>
+    </div>
+  </body>
+</html>
