@@ -2,7 +2,7 @@
 
 ## 1. Pendahuluan
 
-Kebijakan privasi ini menjelaskan bagaimana aplikasi Kamus KBBI VI Bahasa Indonesia menangani informasi Anda. Kami tidak mengumpulkan data pribadi apa pun secara langsung. Namun, aplikasi ini menampilkan iklan dari pihak ketiga yang memiliki kebijakan datanya sendiri, yang dijelaskan pada Bagian 4.
+Kebijakan privasi ini menjelaskan bagaimana aplikasi Kamus KBBI VI Bahasa Indonesia menangani informasi Anda. Kami tidak mengumpulkan data pribadi apa pun secara langsung. Namun, aplikasi ini menampilkan iklan dari pihak ketiga yang memiliki kebijakan datanya sendiri, yang dijelaskan pada Bagian 4. Aplikasi ini ditujukan untuk pengguna berusia 13 tahun ke atas, sebagaimana dijelaskan pada Bagian 5.
 
 ## 2. Prinsip Dasar Privasi
 
@@ -73,7 +73,15 @@ Pemrosesan data oleh Google diatur oleh kebijakan mereka sendiri:
 
 Server penyedia iklan dapat berada di luar Indonesia. Data yang diproses oleh penyedia iklan dapat ditransfer dan diproses di luar yurisdiksi Indonesia sesuai kebijakan privasi Google.
 
-## 5. Jenis Data yang TIDAK Kami Kumpulkan
+## 5. Anak dan Batasan Usia
+
+- Aplikasi ini ditujukan untuk pengguna berusia **13 tahun ke atas** dan tidak dirancang untuk anak di bawah 13 tahun
+- Aplikasi tidak meminta maupun memverifikasi usia pengguna, sehingga batas usia ini berlaku berdasarkan pernyataan pengguna sebagaimana diatur pada Syarat dan Ketentuan
+- Kami tidak dengan sengaja mengumpulkan data pribadi dari anak di bawah 13 tahun, karena kami memang tidak mengumpulkan data pribadi secara langsung
+- Kami tidak menargetkan iklan kepada anak di bawah 13 tahun
+- Jika Anda orang tua atau wali dan mengetahui bahwa anak di bawah 13 tahun menggunakan aplikasi ini, silakan hubungi kami melalui kontak pada Bagian 11
+
+## 6. Jenis Data yang TIDAK Kami Kumpulkan
 
 Kami dengan tegas menyatakan bahwa kami TIDAK mengumpulkan:
 - Informasi identitas pribadi (nama, email, nomor telepon)
@@ -85,61 +93,61 @@ Kami dengan tegas menyatakan bahwa kami TIDAK mengumpulkan:
 
 Catatan: penyedia iklan pihak ketiga dapat memproses sebagian data perangkat sebagaimana dijelaskan pada Bagian 4. Data tersebut tidak diteruskan kepada kami.
 
-## 6. Keamanan Data Lokal
+## 7. Keamanan Data Lokal
 
-### 6.1 Tanggung Jawab Pengguna
+### 7.1 Tanggung Jawab Pengguna
 - Keamanan data di perangkat Anda menjadi tanggung jawab Anda
 - Pastikan perangkat Anda terlindungi dengan kata sandi atau biometrik
 - Data dapat hilang jika aplikasi dihapus atau perangkat direset
 
-### 6.2 Backup Data
+### 7.2 Backup Data
 - Kami tidak menyediakan layanan backup karena tidak memiliki akses ke data Anda
 - Backup data menjadi tanggung jawab Anda sendiri
 - Data akan hilang permanen jika tidak di-backup
 
-## 7. Hak Pengguna
+## 8. Hak Pengguna
 
-### 7.1 Kontrol Penuh
+### 8.1 Kontrol Penuh
 - Anda memiliki kontrol penuh atas data di perangkat Anda
 - Anda dapat menghapus data kapan saja dengan menghapus aplikasi
 - Tidak ada proses "penghapusan akun" karena tidak ada akun yang dibuat
 - Anda dapat mengatur atau menyetel ulang ID periklanan melalui pengaturan perangkat sebagaimana dijelaskan pada Bagian 4.5
 
-### 7.2 Transparansi
+### 8.2 Transparansi
 - Kami berkomitmen untuk transparan mengenai data apa yang kami proses dan apa yang tidak
 - Tidak ada "data tersembunyi" yang kami kumpulkan tanpa sepengetahuan Anda
 - Data yang diproses oleh penyedia iklan dijelaskan pada Bagian 4 dan diatur oleh kebijakan privasi mereka
 
-## 8. Teknologi yang Digunakan
+## 9. Teknologi yang Digunakan
 
-### 8.1 Penyimpanan Lokal
+### 9.1 Penyimpanan Lokal
 - Menggunakan teknologi penyimpanan lokal standar (AsyncStorage/Cache)
 - Data tidak terenkripsi secara khusus karena bersifat lokal dan tidak sensitif
 - Tidak ada sinkronisasi data lokal dengan server eksternal
 
-### 8.2 Koneksi Internet
+### 9.2 Koneksi Internet
 - Internet digunakan untuk mengunduh database kosakata, pembaruan konten, dan memuat iklan
 - Kami tidak menggunakan cookies atau tracking pixels
 - Kami tidak mengintegrasikan platform analytics pihak ketiga untuk memantau perilaku Anda di dalam aplikasi
 
-### 8.3 Identitas Periklanan
+### 9.3 Identitas Periklanan
 - Aplikasi menyertakan SDK Google Mobile Ads yang dapat membaca ID periklanan perangkat untuk keperluan penayangan iklan
 - Kami tidak memiliki akses ke nilai ID periklanan tersebut dan tidak menyimpannya
 
-## 9. Perubahan Kebijakan
+## 10. Perubahan Kebijakan
 
-### 9.1 Komitmen Berkelanjutan
+### 10.1 Komitmen Berkelanjutan
 - Kami berkomitmen untuk tidak mengumpulkan data pribadi Anda secara langsung
 - Setiap perubahan pada kebijakan ini akan dijelaskan secara terbuka, termasuk apabila ada penyedia iklan atau jenis data baru
 - Kebijakan ini akan selalu mencerminkan praktik yang benar-benar dijalankan aplikasi
 
-### 9.2 Notifikasi Perubahan
+### 10.2 Notifikasi Perubahan
 - Perubahan signifikan akan diumumkan melalui pembaruan aplikasi
 - Pengguna akan diberitahu sebelum ada perubahan yang mempengaruhi privasi
 
-## 10. Kontak
+## 11. Kontak
 
-Jika Anda memiliki pertanyaan mengenai kebijakan privasi ini, termasuk mengenai iklan yang ditampilkan, hubungi kami di:
+Jika Anda memiliki pertanyaan mengenai kebijakan privasi ini, termasuk mengenai iklan yang ditampilkan atau penggunaan aplikasi oleh anak, hubungi kami di:
 - Email: dev@naandalist.com
 - Website: www.naandalist.com
 

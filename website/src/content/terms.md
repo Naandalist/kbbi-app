@@ -42,8 +42,10 @@ Kamus KBBI VI Bahasa Indonesia adalah aplikasi kamus digital yang menyediakan ak
 ## 4. Penggunaan Aplikasi
 
 ### 4.1 Kelayakan Pengguna
-- Aplikasi dapat digunakan oleh semua kalangan
-- Tidak ada batasan usia untuk penggunaan aplikasi
+- Aplikasi ditujukan untuk pengguna berusia **13 tahun ke atas**
+- Jika Anda berusia di bawah 13 tahun, mohon untuk tidak menggunakan aplikasi ini
+- Pengguna di bawah 18 tahun wajib menggunakan aplikasi ini dengan sepengetahuan dan izin orang tua atau wali
+- Aplikasi tidak meminta maupun memverifikasi usia pengguna, sehingga batas usia ini berlaku berdasarkan pernyataan pengguna
 - Pengguna bertanggung jawab atas penggunaan aplikasi yang bijak dan sesuai tujuan
 
 ### 4.2 Penggunaan yang Diizinkan
