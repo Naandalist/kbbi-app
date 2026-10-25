@@ -9,6 +9,9 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {StyleSheet} from 'react-native';
 import Router from './router';
 import {useRef} from 'react';
+import {startMobileAds} from './utils/ads';
+
+startMobileAds();
 
 export default function App() {
   return <MainApp />;

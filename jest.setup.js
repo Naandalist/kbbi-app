@@ -36,3 +36,25 @@ jest.mock('./src/router', () => {
     default: () => React.createElement(View, {testID: 'router'}),
   };
 });
+
+jest.mock('react-native-google-mobile-ads', () => {
+  const noop = () => null;
+  return {
+    __esModule: true,
+    default: () => ({initialize: jest.fn().mockResolvedValue(undefined)}),
+    AdsConsent: {
+      gatherConsent: jest.fn().mockResolvedValue({canRequestAds: false}),
+      getConsentInfo: jest.fn().mockResolvedValue({canRequestAds: false}),
+    },
+    NativeAd: {
+      createForAdRequest: jest.fn().mockRejectedValue(new Error('no fill')),
+    },
+    NativeAdView: noop,
+    NativeAsset: noop,
+    NativeMediaView: noop,
+    NativeAssetType: {},
+    NativeAdEventType: {},
+    NativeMediaAspectRatio: {ANY: 1, LANDSCAPE: 2, PORTRAIT: 3, SQUARE: 4},
+    TestIds: {NATIVE: 'ca-app-pub-3940256099942544/2247696110'},
+  };
+});

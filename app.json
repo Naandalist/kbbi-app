@@ -1,4 +1,8 @@
 {
   "name": "kamus_kbbi",
-  "displayName": "Kamus KBBI"
+  "displayName": "Kamus KBBI",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-1316297860279927~4911587882",
+    "delay_app_measurement_init": true
+  }
 }

@@ -1,7 +1,7 @@
 import React, {useCallback, useRef, useState} from 'react';
 import {FlatList, StyleSheet, Text, View, StatusBar} from 'react-native';
 import {colors, fonts} from '../../utils';
-import {Gap} from '../../components';
+import {Gap, NativeAdCard} from '../../components';
 import SkeletonLoader from './SkeletonLoader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
@@ -111,6 +111,9 @@ export default function Detail({route, navigation}) {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />
+        {/* Pinned below the list, so it stays in the viewport on long entries
+            without covering the content or sitting at the top of the screen. */}
+        <NativeAdCard />
       </SafeAreaView>
       <SafeAreaView style={styles.bottomSafeArea} edges={['bottom']} />
 

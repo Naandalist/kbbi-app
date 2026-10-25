@@ -18,7 +18,7 @@ import {
   networkStatus,
   showError,
 } from '../../utils';
-import {Gap} from '../../components';
+import {Gap, NativeAdCard} from '../../components';
 import {wordlist} from '../../constants/wordlist';
 import {FONT_SIZES} from '../../constants';
 import {useDebounce} from '../../hooks';
@@ -247,6 +247,11 @@ export default function HomeScreen({navigation}) {
               ListEmptyComponent={renderEmpty}
             />
           </View>
+          {/* Same pinned slot as the detail screen: the word list gives up the
+              space instead of the ad covering it. */}
+          <View style={styles.adContainer}>
+            <NativeAdCard />
+          </View>
         </View>
       </SafeAreaView>
     </>
@@ -337,6 +342,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingHorizontal: 20,
     paddingVertical: 0,
+  },
+  adContainer: {
+    backgroundColor: colors.white,
+    // The list gutter is 20, and the card already brings 16 of its own.
+    paddingHorizontal: 4,
   },
   wordItemWrapper: {
     borderBottomWidth: 1,
