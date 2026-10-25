@@ -17,6 +17,7 @@
     "build-apk:debug": "cd android && ./gradlew assembleDebug",
     "install-apk": "node scripts/install-android.js apk",
     "install-apk:debug": "node scripts/install-android.js apk --variant debug",
+    "install-aab": "node scripts/install-android.js aab",
     "adb-devices": "node scripts/install-android.js devices"
   },
   "author": "Naandalist",

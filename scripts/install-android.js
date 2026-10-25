@@ -2,9 +2,10 @@
 'use strict';
 
 /**
- * Install a locally built Android APK onto a connected device.
+ * Install a locally built Android artifact onto a connected device.
  *
  *   node scripts/install-android.js apk [--variant release|debug] [options]
+ *   node scripts/install-android.js aab [options]
  *   node scripts/install-android.js devices
  *
  * Options:
@@ -16,6 +17,9 @@
  * Device selection order: --serial, then ANDROID_SERIAL, then the only
  * connected device. When more than one device is attached the script refuses
  * to guess and prints the available serials instead.
+ *
+ * An AAB cannot be pushed to a device directly, so it is converted to device
+ * specific APKs with bundletool first, then installed from there.
  */
 
 const {spawnSync} = require('node:child_process');
@@ -69,6 +73,32 @@ function resolveAdb() {
     if (fs.existsSync(candidate)) return candidate;
   }
   return which('adb') || null;
+}
+
+function resolveBundletool() {
+  const explicit = process.env.BUNDLETOOL_PATH;
+  if (explicit && fs.existsSync(explicit)) {
+    return explicit.endsWith('.jar')
+      ? {command: 'java', args: ['-jar', explicit]}
+      : {command: explicit, args: []};
+  }
+  const onPath = which('bundletool');
+  if (onPath) {
+    return {command: onPath, args: []};
+  }
+  const jars = [
+    ...sdkRoots().map(root => path.join(root, 'bundletool', 'bundletool.jar')),
+    path.join(os.homedir(), 'bundletool', 'bundletool.jar'),
+    path.join(os.homedir(), 'bundletool-all.jar'),
+    path.join(ROOT, 'bundletool.jar'),
+    path.join(ROOT, 'tools', 'bundletool.jar'),
+  ];
+  for (const jar of jars) {
+    if (fs.existsSync(jar)) {
+      return {command: 'java', args: ['-jar', jar]};
+    }
+  }
+  return null;
 }
 
 function capture(command, args) {
@@ -151,6 +181,59 @@ function resolveApk(variant) {
   return candidates.sort(
     (a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs,
   )[0];
+}
+
+function resolveAab() {
+  const dir = path.join(OUTPUTS, 'bundle', 'release');
+  const expected = path.join(dir, 'app-release.aab');
+  if (fs.existsSync(expected)) {
+    return expected;
+  }
+  if (!fs.existsSync(dir)) {
+    return null;
+  }
+  const candidates = fs
+    .readdirSync(dir)
+    .filter(name => name.endsWith('.aab'))
+    .map(name => path.join(dir, name));
+  if (candidates.length === 0) {
+    return null;
+  }
+  return candidates.sort(
+    (a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs,
+  )[0];
+}
+
+function readKeystoreProperties() {
+  const file = path.join(ROOT, 'android', 'keystore.properties');
+  if (!fs.existsSync(file)) {
+    return null;
+  }
+  const values = {};
+  for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue;
+    }
+    const separator = trimmed.indexOf('=');
+    if (separator === -1) {
+      continue;
+    }
+    values[trimmed.slice(0, separator).trim()] = trimmed
+      .slice(separator + 1)
+      .trim();
+  }
+  const storeFile = values.MYAPP_UPLOAD_STORE_FILE;
+  const keyAlias = values.MYAPP_UPLOAD_KEY_ALIAS;
+  if (!storeFile || !keyAlias) {
+    return null;
+  }
+  return {
+    // The path in keystore.properties is relative to the android/app folder.
+    storeFile: path.resolve(ROOT, 'android', 'app', storeFile),
+    keyAlias,
+    storePassword: values.MYAPP_UPLOAD_STORE_PASSWORD || '',
+  };
 }
 
 function printInstalledVersion(adb, serial) {
@@ -271,6 +354,98 @@ function installApk(options) {
   if (options.launch) launchApp(adb, serial);
 }
 
+function installAab(options) {
+  const adb = resolveAdb();
+  if (!adb) {
+    fail(
+      'adb tidak ditemukan',
+      'Pasang Android SDK Platform Tools, atau set ADB_PATH ke path adb yang benar.',
+    );
+  }
+
+  const bundletool = resolveBundletool();
+  if (!bundletool) {
+    fail(
+      'bundletool tidak ditemukan',
+      'AAB tidak bisa dipasang langsung dengan adb, butuh bundletool. Pasang salah satu:\n  brew install bundletool\n  atau unduh manual:\n  curl -L -o ~/bundletool.jar https://github.com/google/bundletool/releases/latest/download/bundletool-all.jar\n  lalu set BUNDLETOOL_PATH=~/bundletool.jar',
+    );
+  }
+
+  const bundlePath = resolveAab();
+  if (!bundlePath) {
+    fail('AAB belum ada', 'Buat dulu dengan:\n  npm run build-aab');
+  }
+
+  const serial = pickDevice(adb, options.serial);
+  const relative = path.relative(ROOT, bundlePath);
+  const size = (fs.statSync(bundlePath).size / (1024 * 1024)).toFixed(1);
+  info(`Device  : ${serial}`);
+  info(`AAB     : ${relative} (${size} MB)`);
+
+  const apksPath = path.join(OUTPUTS, 'bundle', 'release', 'app-release.apks');
+  const buildArgs = [
+    'build-apks',
+    `--bundle=${bundlePath}`,
+    `--output=${apksPath}`,
+    '--overwrite',
+  ];
+
+  const keystore = readKeystoreProperties();
+  if (keystore && fs.existsSync(keystore.storeFile)) {
+    buildArgs.push(
+      `--ks=${keystore.storeFile}`,
+      `--ks-key-alias=${keystore.keyAlias}`,
+      `--ks-pass=pass:${keystore.storePassword}`,
+    );
+    info('Menandatangani APK dengan keystore upload.');
+  } else {
+    info(
+      'Keystore upload tidak ditemukan, APK hasil konversi memakai debug signature.',
+    );
+  }
+
+  info('Membuat APK dari AAB...');
+  const build = spawnSync(
+    bundletool.command,
+    [...bundletool.args, ...buildArgs],
+    {
+      encoding: 'utf8',
+    },
+  );
+  if (build.stdout) process.stdout.write(build.stdout);
+  if (build.stderr) process.stderr.write(build.stderr);
+  if (build.status !== 0) {
+    fail('bundletool build-apks gagal');
+  }
+
+  info('Memasang APK hasil konversi...');
+  const installArgs = [
+    'install-apks',
+    `--apks=${apksPath}`,
+    `--device-id=${serial}`,
+    `--adb=${adb}`,
+  ];
+  if (options.downgrade) {
+    installArgs.push('--allow-downgrade');
+  }
+  const install = spawnSync(
+    bundletool.command,
+    [...bundletool.args, ...installArgs],
+    {
+      encoding: 'utf8',
+    },
+  );
+  if (install.stdout) process.stdout.write(install.stdout);
+  if (install.stderr) process.stderr.write(install.stderr);
+  if (install.status !== 0) {
+    fail('bundletool install-apks gagal');
+  }
+
+  info('Instalasi berhasil.');
+  printInstalledVersion(adb, serial);
+  if (options.launch) launchApp(adb, serial);
+}
+
 function showDevices() {
   const adb = resolveAdb();
   if (!adb) {
@@ -322,6 +497,7 @@ function parseArgs(argv) {
 
 const USAGE = `
 node scripts/install-android.js apk [--variant release|debug] [--serial <serial>] [--downgrade] [--uninstall] [--launch]
+node scripts/install-android.js aab [--serial <serial>] [--launch]
 node scripts/install-android.js devices
 `;
 
@@ -341,6 +517,10 @@ function main() {
   }
   if (mode === 'apk') {
     installApk(options);
+    return;
+  }
+  if (mode === 'aab') {
+    installAab(options);
     return;
   }
   fail(`mode "${mode}" tidak dikenal`, USAGE.trim());
