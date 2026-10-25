@@ -1,3 +1,4 @@
 import Gap from './Gap';
+import NativeAdCard from './NativeAdCard';
 
-export {Gap};
+export {Gap, NativeAdCard};

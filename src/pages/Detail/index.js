@@ -1,7 +1,7 @@
 import React, {useCallback, useRef, useState} from 'react';
 import {FlatList, StyleSheet, Text, View, StatusBar} from 'react-native';
 import {colors, fonts} from '../../utils';
-import {Gap} from '../../components';
+import {Gap, NativeAdCard} from '../../components';
 import SkeletonLoader from './SkeletonLoader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
@@ -78,17 +78,14 @@ export default function Detail({route, navigation}) {
     return (
       <View style={styles.outerContainer}>
         <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
-        <SafeAreaView style={styles.topSafeArea} edges={['top']} />
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <SafeAreaView style={styles.header} edges={['top']}>
+          <BackButton onPress={() => navigation.goBack()} />
+        </SafeAreaView>
+        <SafeAreaView style={styles.container} edges={['left', 'right']}>
           <Gap height={10} />
           <SkeletonLoader />
         </SafeAreaView>
         <SafeAreaView style={styles.bottomSafeArea} edges={['bottom']} />
-
-        {/* Sticky Back Button for loading state */}
-        <View style={styles.stickyBackButton}>
-          <BackButton onPress={() => navigation.goBack()} />
-        </View>
       </View>
     );
   }
@@ -99,7 +96,13 @@ export default function Detail({route, navigation}) {
   return (
     <View style={styles.outerContainer}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
-      <SafeAreaView style={styles.topSafeArea} edges={['top']} />
+      {/* The back bar lives outside the list, so it stays fixed while the
+          content scrolls without an absolutely positioned overlay. That
+          overlay used to cover the top of the list, which forced a large
+          grey reservation that varied with the status bar height. */}
+      <SafeAreaView style={styles.header} edges={['top']}>
+        <BackButton onPress={() => navigation.goBack()} />
+      </SafeAreaView>
       <SafeAreaView style={styles.container} edges={['left', 'right']}>
         <FlatList
           data={wordDetail.entries}
@@ -111,13 +114,11 @@ export default function Detail({route, navigation}) {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />
+        {/* Pinned below the list, so it stays in the viewport on long entries
+            without covering the content or sitting at the top of the screen. */}
+        <NativeAdCard />
       </SafeAreaView>
       <SafeAreaView style={styles.bottomSafeArea} edges={['bottom']} />
-
-      {/* Sticky Back Button positioned absolutely */}
-      <View style={styles.stickyBackButton}>
-        <BackButton onPress={() => navigation.goBack()} />
-      </View>
 
       <KelasKataBottomSheet
         ref={bottomSheetRef}
@@ -140,9 +141,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
   },
-  topSafeArea: {
+  header: {
     backgroundColor: colors.white,
-    paddingTop: 20,
   },
   container: {
     flex: 1,
@@ -152,20 +152,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   listContent: {
-    paddingTop: 50, // Reduced from 60 to make grey area smaller
+    // The first card brings its own marginTop, which already reads as the gap
+    // under the back bar. Anything more here was pure grey band.
     paddingBottom: 20,
-  },
-
-  // STICKY BACK BUTTON
-  stickyBackButton: {
-    position: 'absolute',
-    top: 0, // Position from the very top
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    backgroundColor: colors.white, // Add white background to cover grey area
-    paddingTop: 50, // Reduced from 50 to make grey area smaller
-    pointerEvents: 'box-none', // Allow touches to pass through to underlying elements
   },
 
   // EMPTY STATE
