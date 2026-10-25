@@ -13,7 +13,12 @@
     "reset": "rm -rf android/build && rm -rf android/.gradle && rm -rf node_modules/.cache",
     "test-release": "npm run android -- --mode release",
     "build-aab": "npx react-native build-android --mode=release",
-    "build-apk": "cd android && ./gradlew assembleRelease"
+    "build-apk": "cd android && ./gradlew assembleRelease",
+    "build-apk:debug": "cd android && ./gradlew assembleDebug",
+    "install-apk": "node scripts/install-android.js apk",
+    "install-apk:debug": "node scripts/install-android.js apk --variant debug",
+    "install-aab": "node scripts/install-android.js aab",
+    "adb-devices": "node scripts/install-android.js devices"
   },
   "author": "Naandalist",
   "dependencies": {
