@@ -24,12 +24,23 @@ target 'kamus_kbbi' do
   )
 
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Xcode 27 rejects IPHONEOS_DEPLOYMENT_TARGET below 15.0. AdMob/UMP
+    # resource-bundle targets still inherit platforms.ios 12.0.
+    min_ios = '15.1'
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+        next if current && current.to_f >= min_ios.to_f
+
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios
+      end
+    end
   end
 end
