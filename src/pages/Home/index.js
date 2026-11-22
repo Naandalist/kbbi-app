@@ -62,7 +62,7 @@ export default function HomeScreen({navigation}) {
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    BootSplash.hide({fade: true, duration: 1000});
+    BootSplash.hide({fade: true});
   }, []);
 
   const [wordToFind, setWordToFind] = useState('');
@@ -210,7 +210,7 @@ export default function HomeScreen({navigation}) {
 
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <StatusBar barStyle="light-content" />
       <SafeAreaView style={styles.page} edges={['left', 'bottom', 'right']}>
         <View style={styles.safeAreaTop}>
           <View style={[styles.headerContainer, {paddingTop: insets.top + 20}]}>

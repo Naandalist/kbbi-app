@@ -6,6 +6,7 @@ import {useReactNavigationDevTools} from '@rozenite/react-navigation-plugin';
 import {NavigationContainer} from '@react-navigation/native';
 import FlashMessage from 'react-native-flash-message';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {StyleSheet} from 'react-native';
 import Router from './router';
 import {useRef} from 'react';
@@ -26,10 +27,12 @@ function MainApp() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <NavigationContainer ref={navigationRef}>
-        <Router />
-      </NavigationContainer>
-      <FlashMessage position="top" duration={3000} />
+      <SafeAreaProvider>
+        <NavigationContainer ref={navigationRef}>
+          <Router />
+        </NavigationContainer>
+        <FlashMessage position="top" duration={3000} />
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

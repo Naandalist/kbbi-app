@@ -77,7 +77,7 @@ export default function Detail({route, navigation}) {
   if (wordDetail.entries.length === 0) {
     return (
       <View style={styles.outerContainer}>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+        <StatusBar barStyle="dark-content" />
         <SafeAreaView style={styles.header} edges={['top']}>
           <BackButton onPress={() => navigation.goBack()} />
         </SafeAreaView>
@@ -95,7 +95,7 @@ export default function Detail({route, navigation}) {
   // =============================================================================
   return (
     <View style={styles.outerContainer}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+      <StatusBar barStyle="dark-content" />
       {/* The back bar lives outside the list, so it stays fixed while the
           content scrolls without an absolutely positioned overlay. That
           overlay used to cover the top of the list, which forced a large
