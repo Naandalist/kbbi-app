@@ -91,8 +91,8 @@ android {
         applicationId "com.naandalist.kamus_kbbi"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 15
-        versionName "7.3.2"
+        versionCode 16
+        versionName "7.4.0"
     }
     signingConfigs {
         debug {
@@ -119,6 +119,7 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
+            shrinkResources enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
